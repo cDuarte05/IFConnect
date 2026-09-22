@@ -1,0 +1,36 @@
+/*
+  Sistema de design — "Caderno de Campo" (Field Notebook)
+  Inspirado em cadernos de laboratório e jornais murais escolares: papel,
+  carimbos de aprovação e uma paleta de observatório noturno.
+
+  Cores:
+    --cor-tinta      #14213D  (navy quase-preto — texto, cabeçalho)
+    --cor-papel      #FBF8F1  (fundo principal, textura de papel)
+    --cor-papel-alt  #F1ECDD  (blocos alternados, cards)
+    --cor-ambar      #E8AA42  (destaque principal — CTAs, selos)
+    --cor-teal       #2A7D74  (links, sucesso, progresso)
+    --cor-alerta     #C1443A  (avisos, urgência de campanhas)
+  Tipografia:
+    Display: "Source Serif 4" (títulos — remete a jornal/artigo científico)
+    Corpo:   "Inter" (leitura em tela)
+    Mono:    "JetBrains Mono" (metadados: datas, categorias, valores)
+*/
+:root {
+  --cor-tinta: #14213d;
+  --cor-tinta-suave: #3c4a6b;
+  --cor-papel: #fbf8f1;
+  --cor-papel-alt: #f1ecdd;
+  --cor-borda: #ded5bd;
+  --cor-ambar: #e8aa42;
+  --cor-ambar-escuro: #c78a26;
+  --cor-teal: #2a7d74;
+  --cor-alerta: #c1443a;
+
+  --fonte-display: 'Source Serif 4', Georgia, serif;
+  --fonte-corpo: 'Inter', system-ui, sans-serif;
+  --fonte-mono: 'JetBrains Mono', monospace;
+
+  --raio: 3px;
+  --sombra: 0 1px 2px rgba(20, 33, 61, 0.08), 0 4px 12px rgba(20, 33, 61, 0.06);
+  --largura-max: 1120px;
+}
