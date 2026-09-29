@@ -36,6 +36,7 @@ export default function SubmitCampaign() {
         ...form,
         categoryId: form.categoryId || null,
         tema: form.tema || null,
+        prazoFinal: form.prazoFinal || null,
         metaFinanceira: Number(form.metaFinanceira),
       };
       const { data } = await api.post('/campanhas', payload);
@@ -106,6 +107,7 @@ export default function SubmitCampaign() {
         <input
           id="prazoFinal"
           type="date"
+          min={new Date().toISOString().slice(0, 10)}
           value={form.prazoFinal}
           onChange={(e) => atualizar('prazoFinal', e.target.value)}
         />

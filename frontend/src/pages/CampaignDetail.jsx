@@ -13,8 +13,10 @@ export default function CampaignDetail() {
   const [status, setStatus] = useState('');
   const { usuario } = useAuth();
 
+  const [erro, setErro] = useState('');
+
   function carregar() {
-    api.get(`/campanhas/${id}`).then((r) => setCampanha(r.data));
+    api.get(`/campanhas/${id}`).then((r) => setCampanha(r.data)).catch(() => setErro('Projeto não encontrado.'));
   }
 
   useEffect(() => { carregar(); }, [id]);
@@ -33,6 +35,7 @@ export default function CampaignDetail() {
     }
   }
 
+  if (erro) return <div className="container" style={{ padding: '2.5rem 1.5rem' }}><p className="erro-msg">{erro}</p></div>;
   if (!campanha) return <div className="container" style={{ padding: '2.5rem 1.5rem' }}><p className="rotulo-mono">Carregando...</p></div>;
 
   const podeEditar = usuario && usuario.id === campanha.autorId && campanha.status === 'em_analise';
@@ -48,10 +51,11 @@ export default function CampaignDetail() {
           onError={(e) => { e.currentTarget.style.display = 'none'; }}
         />
       )}
-      {(campanha.categoria || campanha.tema) && (
+      {(campanha.categoria || campanha.tema || campanha.status === 'financiada') && (
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', margin: '1rem 0' }}>
           {campanha.categoria && <span className="selo selo-projeto">{campanha.categoria.nome}</span>}
           {campanha.tema && <span className={`selo selo-tema-${campanha.tema}`}>{TEMA_ROTULOS[campanha.tema] || campanha.tema}</span>}
+          {campanha.status === 'financiada' && <span className="selo selo-financiada">Meta atingida</span>}
         </div>
       )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
@@ -64,11 +68,22 @@ export default function CampaignDetail() {
       {campanha.palavrasChave && (
         <p className="rotulo-mono" style={{ marginTop: '0.75rem' }}>Palavras-chave: {campanha.palavrasChave}</p>
       )}
+      {campanha.prazoFinal && (
+        <p className="rotulo-mono" style={{ marginTop: '0.5rem' }}>
+          Prazo final: {new Date(campanha.prazoFinal).toLocaleDateString('pt-BR')}
+        </p>
+      )}
 
       <div className="cartao" style={{ padding: '1.5rem', marginTop: '2rem' }}>
         <h3>Apoiar este projeto</h3>
         {!usuario ? (
           <p>Você precisa <Link to="/entrar">entrar</Link> para apoiar um projeto.</p>
+        ) : campanha.status !== 'ativa' ? (
+          <p>
+            {campanha.status === 'financiada'
+              ? 'Meta atingida — obrigado a todos que apoiaram este projeto!'
+              : 'Este projeto não está aceitando apoios no momento.'}
+          </p>
         ) : (
           <form onSubmit={apoiar}>
             <label htmlFor="valor">Valor (R$)</label>

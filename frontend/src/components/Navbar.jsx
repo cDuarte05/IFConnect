@@ -1,9 +1,14 @@
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { usuario, sair } = useAuth();
+  const navigate = useNavigate();
 
+  function handleSair() {
+    sair();
+    navigate('/');
+  }
   return (
     <header style={{ borderBottom: '2px solid var(--cor-tinta)', background: 'var(--cor-papel)', position: 'sticky', top: 0, zIndex: 10 }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.9rem 1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -21,7 +26,7 @@ export default function Navbar() {
           {usuario ? (
             <>
               <span className="rotulo-mono">{usuario.nome.split(' ')[0]}</span>
-              <button className="botao-secundario" onClick={sair}>Sair</button>
+              <button className="botao-secundario" onClick={handleSair}>Sair</button>
             </>
           ) : (
             <Link to="/entrar" className="botao botao-primario">Entrar</Link>

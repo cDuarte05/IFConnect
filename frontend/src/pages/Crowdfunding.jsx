@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { TEMAS } from '../constants';
 
 export default function Crowdfunding() {
+  const [status, setStatus] = useState('');
   const [campanhas, setCampanhas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -22,11 +23,16 @@ export default function Crowdfunding() {
     setCarregando(true);
     api
       .get('/campanhas', {
-        params: { categoryId: categoryId || undefined, tema: tema || undefined, busca: busca || undefined },
+        params: {
+          categoryId: categoryId || undefined,
+          tema: tema || undefined,
+          busca: busca || undefined,
+          status: status || undefined,
+        },
       })
       .then((r) => setCampanhas(r.data))
       .finally(() => setCarregando(false));
-  }, [categoryId, tema, busca]);
+  }, [categoryId, tema, busca, status]);
 
   return (
     <div className="container" style={{ padding: '2.5rem 1.5rem' }}>
@@ -71,6 +77,19 @@ export default function Crowdfunding() {
             {TEMAS.map((t) => (
               <option key={t.valor} value={t.valor}>{t.rotulo}</option>
             ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="filtroStatus" className="rotulo-mono">Situação</label>
+          <select
+            id="filtroStatus"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            style={{ maxWidth: 220 }}
+          >
+            <option value="">Em andamento e financiados</option>
+            <option value="ativa">Só em andamento</option>
+            <option value="financiada">Só com meta atingida</option>
           </select>
         </div>
       </div>

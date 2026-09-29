@@ -80,6 +80,7 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 1rem 0 0.35
 .selo-artigo_cientifico { color: var(--cor-tinta); }
 .selo-texto, .selo-poema { color: var(--cor-ambar-escuro); }
 .selo-projeto { color: var(--cor-alerta); }
+.selo-financiada { color: var(--cor-teal); }
 
 /* Selos de tema — lista fixa (científico/educacional/cultural/comunitário) */
 .selo-tema-cientifico { color: var(--cor-tinta); }

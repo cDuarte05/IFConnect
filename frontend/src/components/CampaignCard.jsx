@@ -13,7 +13,10 @@ export default function CampaignCard({ campanha }) {
         />
       )}
       <div style={{ padding: '1.25rem' }}>
-        {campanha.categoria && <span className="selo selo-projeto">{campanha.categoria.nome}</span>}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {campanha.categoria && <span className="selo selo-projeto">{campanha.categoria.nome}</span>}
+          {campanha.status === 'financiada' && <span className="selo selo-financiada">Meta atingida</span>}
+        </div>
         <h3 style={{ marginTop: '0.6rem' }}>{campanha.titulo}</h3>
         <p style={{ color: 'var(--cor-tinta-suave)', fontSize: '0.92rem' }}>{campanha.descricao?.slice(0, 120)}...</p>
         <FundingBar arrecadado={campanha.valorArrecadado} meta={campanha.metaFinanceira} />

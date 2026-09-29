@@ -26,4 +26,20 @@ function permitir(...tipos) {
   };
 }
 
-module.exports = { autenticar, permitir };
+
+// Middleware de autenticação opcional: preenche req.usuario se houver token válido,
+// mas não bloqueia a requisição caso não haja (usado em rotas públicas que precisam
+// saber se o visitante é o autor/moderador, sem exigir login de todo mundo).
+function autenticarOpcional(req, res, next) {
+  const header = req.headers.authorization;
+  if (header && header.startsWith('Bearer ')) {
+    try {
+      req.usuario = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET);
+    } catch (e) {
+      // token inválido/expirado: segue como visitante anônimo
+    }
+  }
+  next();
+}
+
+module.exports = { autenticar, autenticarOpcional, permitir };

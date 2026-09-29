@@ -1,9 +1,12 @@
 const { Campaign, User, Donation, Category } = require('../models');
 const asyncHandler = require('../utils/asyncHandler');
+const { Op } = require('sequelize');
 
 exports.listar = asyncHandler(async (req, res) => {
-  const { categoryId, tema, busca } = req.query;
-  const where = { status: 'ativa' };
+  const { categoryId, tema, busca, status } = req.query;
+  const STATUS_PUBLICOS = ['ativa', 'financiada'];
+  const where = {};
+  where.status = STATUS_PUBLICOS.includes(status) ? status : { [Op.in]: STATUS_PUBLICOS };
   if (categoryId) where.categoryId = categoryId;
   if (tema) where.tema = tema;
 
@@ -18,10 +21,10 @@ exports.listar = asyncHandler(async (req, res) => {
 
   const filtradas = busca
     ? campanhas.filter(
-        (c) =>
-          c.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-          (c.palavrasChave || '').toLowerCase().includes(busca.toLowerCase())
-      )
+      (c) =>
+        c.titulo.toLowerCase().includes(busca.toLowerCase()) ||
+        (c.palavrasChave || '').toLowerCase().includes(busca.toLowerCase())
+    )
     : campanhas;
 
   res.json(filtradas);
@@ -36,6 +39,15 @@ exports.obterPorId = asyncHandler(async (req, res) => {
     ],
   });
   if (!campanha) return res.status(404).json({ erro: true, mensagem: 'Campanha não encontrada' });
+
+  const visivelPublicamente = ['ativa', 'financiada'].includes(campanha.status);
+  const ehAutor = req.usuario && req.usuario.id === campanha.autorId;
+  const ehModerador = req.usuario && req.usuario.tipo === 'professor_moderador';
+
+  if (!visivelPublicamente && !ehAutor && !ehModerador) {
+    return res.status(404).json({ erro: true, mensagem: 'Campanha não encontrada' });
+  }
+
   res.json(campanha);
 });
 

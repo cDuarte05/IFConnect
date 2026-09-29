@@ -5,8 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    host: true, // escuta em todas as interfaces de rede, não só localhost — permite acesso via IP da LAN
     proxy: {
-      // encaminha chamadas /api para o backend local durante o desenvolvimento
       '/api': 'http://localhost:4000',
     },
   },

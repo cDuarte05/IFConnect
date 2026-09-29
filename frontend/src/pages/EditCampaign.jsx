@@ -136,8 +136,13 @@ export default function EditCampaign() {
         />
 
         <label htmlFor="prazoFinal">Prazo final (opcional)</label>
-        <input id="prazoFinal" type="date" value={form.prazoFinal} onChange={(e) => atualizar('prazoFinal', e.target.value)} />
-
+        <input
+          id="prazoFinal"
+          type="date"
+          min={new Date().toISOString().slice(0, 10)}
+          value={form.prazoFinal}
+          onChange={(e) => atualizar('prazoFinal', e.target.value)}
+        />
         <label htmlFor="imagem">URL da imagem de capa (opcional)</label>
         <input id="imagem" value={form.imagemCapaUrl} onChange={(e) => atualizar('imagemCapaUrl', e.target.value)} />
 

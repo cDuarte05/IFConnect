@@ -7,7 +7,9 @@ exports.apoiar = asyncHandler(async (req, res) => {
   const { valor, mensagemApoio, anonimo } = req.body;
   const campanha = await Campaign.findByPk(req.params.campaignId);
   if (!campanha) return res.status(404).json({ erro: true, mensagem: 'Campanha não encontrada' });
-  if (!valor || valor <= 0) {
+  if (campanha.status !== 'ativa') {
+    return res.status(400).json({ erro: true, mensagem: 'Este projeto não está aceitando apoios no momento' });
+  }if (!valor || valor <= 0) {
     return res.status(400).json({ erro: true, mensagem: 'Valor de apoio inválido' });
   }
 
