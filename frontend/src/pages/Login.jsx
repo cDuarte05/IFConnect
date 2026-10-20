@@ -25,9 +25,9 @@ export default function Login() {
       <h1>Entrar</h1>
       <form onSubmit={enviar}>
         <label htmlFor="email">Email</label>
-        <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input id="email" type="email" required maxLength={180} value={email} onChange={(e) => setEmail(e.target.value)} />
         <label htmlFor="senha">Senha</label>
-        <input id="senha" type="password" required value={senha} onChange={(e) => setSenha(e.target.value)} />
+        <input id="senha" type="password" required maxLength={72} value={senha} onChange={(e) => setSenha(e.target.value)} />
         {erro && <p className="erro-msg">{erro}</p>}
         <button type="submit" className="botao-primario" style={{ marginTop: '1.5rem' }}>Entrar</button>
       </form>

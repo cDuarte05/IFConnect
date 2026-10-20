@@ -143,6 +143,8 @@ export default function Moderation() {
               id="novaCategoria"
               placeholder="ex.: Robótica"
               required
+              minLength={2}
+              maxLength={60}
               value={novaCategoria}
               onChange={(e) => setNovaCategoria(e.target.value)}
             />

@@ -59,6 +59,7 @@ export default function Home() {
           <input
             id="busca"
             placeholder="Título ou palavra-chave..."
+            maxLength={150}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             style={{ maxWidth: 280 }}

@@ -1,13 +1,5 @@
 import { Link } from 'react-router-dom';
-
-const ROTULOS = {
-  noticia_escolar: 'Notícia escolar',
-  noticia_global: 'Notícia global',
-  artigo_cientifico: 'Artigo científico',
-  texto: 'Texto',
-  poema: 'Poema',
-  projeto: 'Projeto',
-};
+import { TEMA_ROTULOS, TIPO_ROTULOS } from '../constants';
 
 export default function ArticleCard({ artigo }) {
   return (
@@ -22,7 +14,9 @@ export default function ArticleCard({ artigo }) {
       )}
       <div style={{ padding: '1.25rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <span className={`selo selo-${artigo.tipo}`}>{ROTULOS[artigo.tipo] || artigo.tipo}</span>
+          <span className={`selo selo-${artigo.tipo}`}>
+            {TIPO_ROTULOS[artigo.tipo] || artigo.tipo}
+          </span>
           {artigo.categoria && <span className="selo selo-categoria">{artigo.categoria.nome}</span>}
         </div>
         <h3 style={{ marginTop: '0.6rem' }}>{artigo.titulo}</h3>

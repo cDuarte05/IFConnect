@@ -56,17 +56,19 @@ export default function SubmitCampaign() {
         Projetos entram em análise antes de aparecer na vitrine científica.
       </p>
       <form onSubmit={enviar}>
-        <label htmlFor="titulo">Título do projeto</label>
-        <input id="titulo" required value={form.titulo} onChange={(e) => atualizar('titulo', e.target.value)} />
+        <label htmlFor="titulo">Título do projeto (entre 10 e 150 caracteres)</label>
+        <input id="titulo" required minLength={10} maxLength={150} value={form.titulo} onChange={(e) => atualizar('titulo', e.target.value)} />
 
-        <label htmlFor="descricao">Descrição</label>
+        <label htmlFor="descricao">Descrição (até 5.000 caracteres)</label>
         <textarea
           id="descricao"
           required
           rows={8}
+          maxLength={5000}
           value={form.descricao}
           onChange={(e) => atualizar('descricao', e.target.value)}
         />
+        <p className="rotulo-mono" style={{ marginTop: '0.3rem' }}>{form.descricao.length}/5000</p>
 
         <label htmlFor="categoria">Categoria (opcional)</label>
         <select id="categoria" value={form.categoryId} onChange={(e) => atualizar('categoryId', e.target.value)}>
@@ -84,9 +86,10 @@ export default function SubmitCampaign() {
           ))}
         </select>
 
-        <label htmlFor="palavrasChave">Palavras-chave (opcional, separadas por vírgula)</label>
+        <label htmlFor="palavrasChave">Palavras-chave (opcional, separadas por vírgula, até 300 caracteres)</label>
         <input
           id="palavrasChave"
+          maxLength={300}
           placeholder="ex.: robótica, sustentabilidade"
           value={form.palavrasChave}
           onChange={(e) => atualizar('palavrasChave', e.target.value)}
@@ -113,7 +116,7 @@ export default function SubmitCampaign() {
         />
 
         <label htmlFor="imagem">URL da imagem de capa (opcional)</label>
-        <input id="imagem" value={form.imagemCapaUrl} onChange={(e) => atualizar('imagemCapaUrl', e.target.value)} />
+        <input id="imagem" type="url" maxLength={500} placeholder="https://..." value={form.imagemCapaUrl} onChange={(e) => atualizar('imagemCapaUrl', e.target.value)} />
 
         {erro && <p className="erro-msg">{erro}</p>}
         <button type="submit" className="botao-primario" style={{ marginTop: '1.5rem' }} disabled={enviando}>

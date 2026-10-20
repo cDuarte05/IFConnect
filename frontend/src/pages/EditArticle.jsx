@@ -112,14 +112,15 @@ export default function EditArticle() {
           <option value="projeto">Projeto</option>
         </select>
 
-        <label htmlFor="titulo">Título</label>
-        <input id="titulo" required value={form.titulo} onChange={(e) => atualizar('titulo', e.target.value)} />
+        <label htmlFor="titulo">Título (entre 10 e 150 caracteres)</label>
+        <input id="titulo" required minLength={10} maxLength={150} value={form.titulo} onChange={(e) => atualizar('titulo', e.target.value)} />
 
         <label htmlFor="resumo">Resumo (até 300 caracteres)</label>
         <input id="resumo" required maxLength={300} value={form.resumo} onChange={(e) => atualizar('resumo', e.target.value)} />
 
-        <label htmlFor="conteudo">Conteúdo completo</label>
-        <textarea id="conteudo" required rows={10} value={form.conteudo} onChange={(e) => atualizar('conteudo', e.target.value)} />
+        <label htmlFor="conteudo">Conteúdo completo (até 20.000 caracteres)</label>
+        <textarea id="conteudo" required rows={10} maxLength={20000} value={form.conteudo} onChange={(e) => atualizar('conteudo', e.target.value)} />
+        <p className="rotulo-mono" style={{ marginTop: '0.3rem' }}>{form.conteudo.length}/20000</p>
 
         <label htmlFor="categoria">Categoria (opcional)</label>
         <select id="categoria" value={form.categoryId} onChange={(e) => atualizar('categoryId', e.target.value)}>
@@ -137,11 +138,11 @@ export default function EditArticle() {
           ))}
         </select>
 
-        <label htmlFor="palavrasChave">Palavras-chave (opcional, separadas por vírgula)</label>
-        <input id="palavrasChave" value={form.palavrasChave} onChange={(e) => atualizar('palavrasChave', e.target.value)} />
+        <label htmlFor="palavrasChave">Palavras-chave (opcional, separadas por vírgula, até 300 caracteres)</label>
+        <input id="palavrasChave" maxLength={300} value={form.palavrasChave} onChange={(e) => atualizar('palavrasChave', e.target.value)} />
 
         <label htmlFor="imagem">URL da imagem de capa (opcional)</label>
-        <input id="imagem" value={form.imagemCapaUrl} onChange={(e) => atualizar('imagemCapaUrl', e.target.value)} />
+        <input id="imagem" type="url" maxLength={500} value={form.imagemCapaUrl} onChange={(e) => atualizar('imagemCapaUrl', e.target.value)} />
 
         {erro && <p className="erro-msg">{erro}</p>}
         <button type="submit" className="botao-primario" style={{ marginTop: '1.5rem' }} disabled={enviando}>

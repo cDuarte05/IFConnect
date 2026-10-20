@@ -81,13 +81,14 @@ export default function Profile() {
       <form onSubmit={salvar} className="cartao" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
         <h3>Editar dados</h3>
         <label htmlFor="nome">Nome</label>
-        <input id="nome" required value={form.nome} onChange={(e) => atualizar('nome', e.target.value)} />
+        <input id="nome" required minLength={2} maxLength={120} value={form.nome} onChange={(e) => atualizar('nome', e.target.value)} />
 
         <label htmlFor="instituicao">Instituição</label>
-        <input id="instituicao" value={form.instituicao} onChange={(e) => atualizar('instituicao', e.target.value)} />
+        <input id="instituicao" maxLength={150} value={form.instituicao} onChange={(e) => atualizar('instituicao', e.target.value)} />
 
         <label htmlFor="bio">Bio</label>
-        <textarea id="bio" rows={4} value={form.bio} onChange={(e) => atualizar('bio', e.target.value)} />
+        <textarea id="bio" rows={4} maxLength={2000} value={form.bio} onChange={(e) => atualizar('bio', e.target.value)} />
+        <p className="rotulo-mono" style={{ marginTop: '0.3rem' }}>{form.bio.length}/2000</p>
 
         {status === 'sucesso' && <p className="sucesso-msg">Perfil atualizado.</p>}
         {status && status !== 'sucesso' && <p className="erro-msg">{status}</p>}

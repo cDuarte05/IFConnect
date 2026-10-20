@@ -28,13 +28,13 @@ export default function Register() {
       <h1>Criar conta</h1>
       <form onSubmit={enviar}>
         <label htmlFor="nome">Nome</label>
-        <input id="nome" required value={form.nome} onChange={(e) => atualizar('nome', e.target.value)} />
+        <input id="nome" required minLength={2} maxLength={120} value={form.nome} onChange={(e) => atualizar('nome', e.target.value)} />
 
         <label htmlFor="email">Email</label>
-        <input id="email" type="email" required value={form.email} onChange={(e) => atualizar('email', e.target.value)} />
+        <input id="email" type="email" required maxLength={180} value={form.email} onChange={(e) => atualizar('email', e.target.value)} />
 
         <label htmlFor="senha">Senha</label>
-        <input id="senha" type="password" required minLength={6} value={form.senha} onChange={(e) => atualizar('senha', e.target.value)} />
+        <input id="senha" type="password" required minLength={6} maxLength={72} value={form.senha} onChange={(e) => atualizar('senha', e.target.value)} />
 
         <label htmlFor="tipo">Eu sou</label>
         <select id="tipo" value={form.tipo} onChange={(e) => atualizar('tipo', e.target.value)}>
@@ -47,7 +47,7 @@ export default function Register() {
         </p>
 
         <label htmlFor="instituicao">Instituição (opcional)</label>
-        <input id="instituicao" value={form.instituicao} onChange={(e) => atualizar('instituicao', e.target.value)} />
+        <input id="instituicao" maxLength={150} value={form.instituicao} onChange={(e) => atualizar('instituicao', e.target.value)} />
 
         {erro && <p className="erro-msg">{erro}</p>}
         <button type="submit" className="botao-primario" style={{ marginTop: '1.5rem' }}>Criar conta</button>

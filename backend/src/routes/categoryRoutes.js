@@ -10,7 +10,12 @@ router.post(
   '/',
   autenticar,
   permitir('professor_moderador'),
-  [body('nome').trim().notEmpty().withMessage('Nome da categoria é obrigatório')],
+  [
+    body('nome').trim().notEmpty().withMessage('Nome da categoria é obrigatório')
+      .isLength({ min: 2, max: 60 }).withMessage('Nome da categoria deve ter entre 2 e 60 caracteres'),
+    body('descricao').optional({ checkFalsy: true }).trim()
+      .isLength({ max: 200 }).withMessage('Descrição da categoria muito longa (máximo 200 caracteres)'),
+  ],
   validar,
   controller.criar
 );

@@ -6,12 +6,12 @@ import { useAuth } from '../context/AuthContext';
 import { TEMAS } from '../constants';
 
 export default function Crowdfunding() {
-  const [status, setStatus] = useState('');
   const [campanhas, setCampanhas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [categoryId, setCategoryId] = useState('');
   const [tema, setTema] = useState('');
+  const [status, setStatus] = useState('');
   const [busca, setBusca] = useState('');
   const { usuario } = useAuth();
 
@@ -23,16 +23,11 @@ export default function Crowdfunding() {
     setCarregando(true);
     api
       .get('/campanhas', {
-        params: {
-          categoryId: categoryId || undefined,
-          tema: tema || undefined,
-          busca: busca || undefined,
-          status: status || undefined,
-        },
+        params: { categoryId: categoryId || undefined, tema: tema || undefined, status: status || undefined, busca: busca || undefined },
       })
       .then((r) => setCampanhas(r.data))
       .finally(() => setCarregando(false));
-  }, [categoryId, tema, busca, status]);
+  }, [categoryId, tema, status, busca]);
 
   return (
     <div className="container" style={{ padding: '2.5rem 1.5rem' }}>
@@ -54,6 +49,7 @@ export default function Crowdfunding() {
           <input
             id="buscaProjeto"
             placeholder="Título ou palavra-chave..."
+            maxLength={150}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             style={{ maxWidth: 280 }}
@@ -81,12 +77,7 @@ export default function Crowdfunding() {
         </div>
         <div>
           <label htmlFor="filtroStatus" className="rotulo-mono">Situação</label>
-          <select
-            id="filtroStatus"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            style={{ maxWidth: 220 }}
-          >
+          <select id="filtroStatus" value={status} onChange={(e) => setStatus(e.target.value)} style={{ maxWidth: 220 }}>
             <option value="">Em andamento e financiados</option>
             <option value="ativa">Só em andamento</option>
             <option value="financiada">Só com meta atingida</option>

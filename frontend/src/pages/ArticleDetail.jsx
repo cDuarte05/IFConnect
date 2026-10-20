@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { TEMA_ROTULOS } from '../constants';
+import { TEMA_ROTULOS, TIPO_ROTULOS } from '../constants';
 
 export default function ArticleDetail() {
   const { id } = useParams();
@@ -32,8 +32,9 @@ export default function ArticleDetail() {
         />
       )}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', margin: '1rem 0' }}>
-        <span className={`selo selo-${artigo.tipo}`}>{artigo.tipo}</span>
-        {artigo.categoria && <span className="selo selo-categoria">{artigo.categoria.nome}</span>}
+        <span className={`selo selo-${artigo.tipo}`}>
+          {TIPO_ROTULOS[artigo.tipo] || artigo.tipo}
+        </span>        {artigo.categoria && <span className="selo selo-categoria">{artigo.categoria.nome}</span>}
         {artigo.tema && <span className={`selo selo-tema-${artigo.tema}`}>{TEMA_ROTULOS[artigo.tema] || artigo.tema}</span>}
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>

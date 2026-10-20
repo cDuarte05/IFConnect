@@ -11,6 +11,15 @@ body {
   font-family: var(--fonte-corpo);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* rede de segurança final contra overflow horizontal residual */
+
+  /* Proteção de layout contra strings muito longas e sem espaços (ex.: "AAAAAAAA...").
+     overflow-wrap/word-break são propriedades herdadas em CSS — aplicar uma vez
+     aqui no body cobre automaticamente todo elemento de texto descendente
+     (h1, p, span, strong, div, li, td...), sem precisar listar cada tag e
+     correr o risco de esquecer alguma. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 h1, h2, h3 { font-family: var(--fonte-display); margin: 0 0 0.4em; line-height: 1.15; }
@@ -96,6 +105,10 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 1rem 0 0.35
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio);
   box-shadow: var(--sombra);
+  min-width: 0;   /* crítico: sem isso, um filho de grid/flex não encolhe abaixo do
+                     conteúdo intrínseco — é o que permite uma string sem espaços
+                     esticar o card e quebrar a grade de cards inteira */
+  overflow: hidden; /* contém qualquer overflow residual dentro do próprio card */
 }
 
 .erro-msg { color: var(--cor-alerta); font-size: 0.9rem; margin-top: 0.5rem; }
