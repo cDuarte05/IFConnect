@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import Moderation from './pages/Moderation';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import AssistenteIA from './components/AssistenteIA';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/registrar" element={<Register />} />
         </Routes>
       </main>
+      <AssistenteIA />
       <Footer />
     </div>
   );

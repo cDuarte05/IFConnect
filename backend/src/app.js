@@ -11,6 +11,7 @@ const articleRoutes = require('./routes/articleRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
 const donationRoutes = require('./routes/donationRoutes');
 const errorHandler = require('./middleware/errorHandler');
+const agenteRoutes = require('./routes/agenteRoutes');
 
 const app = express();
 
@@ -37,7 +38,7 @@ app.use('/api/categorias', categoryRoutes);
 app.use('/api/artigos', articleRoutes);
 app.use('/api/campanhas', campaignRoutes);
 app.use('/api/doacoes', donationRoutes);
-
+app.use('/api/agente', agenteRoutes);
 app.use(errorHandler);
 
 module.exports = app;
