@@ -100,7 +100,40 @@ async function chamarAnthropic({ pergunta, contexto }) {
     }
 }
 
-const PROVEDORES = { anthropic: chamarAnthropic };
+async function chamarGemini({ pergunta, contexto }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
+  try {
+    const modelo = process.env.AGENTE_IA_MODEL || 'gemini-2.5-flash-lite';
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`,
+      {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'content-type': 'application/json',
+          'x-goog-api-key': process.env.AGENTE_IA_API_KEY,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{
+            role: 'user',
+            parts: [{ text: `<contexto>${JSON.stringify(contexto)}</contexto>\n<pergunta>${pergunta}</pergunta>` }],
+          }],
+          generationConfig: { maxOutputTokens: 500, temperature: 0.3 },
+        }),
+      }
+    );
+    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
+    const data = await resp.json();
+    const partes = data.candidates?.[0]?.content?.parts || [];
+    return partes.map((p) => p.text || '').join('\n').trim();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const PROVEDORES = { anthropic: chamarAnthropic, gemini: chamarGemini };
 
 // Retorna texto do provedor ou null (sem chave, provedor desconhecido, timeout, erro).
 async function tentarProvedor(pergunta, contexto) {

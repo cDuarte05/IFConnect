@@ -64,4 +64,17 @@ describe('Agente de IA — POST /api/agente/consulta', () => {
         expect(res.status).toBe(200);
         expect(res.body.modo).toBe('busca');
     });
+
+    test('com provedor gemini mockado, extrai o texto da resposta', async () => {
+        process.env.AGENTE_IA_PROVIDER = 'gemini';
+        process.env.AGENTE_IA_API_KEY = 'chave-de-teste';
+        global.fetch = jest.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ candidates: [{ content: { parts: [{ text: 'Resposta Gemini simulada' }] } }] }),
+        });
+        const res = await perguntar('Tem algo sobre astronomia?');
+        expect(res.body.modo).toBe('ia');
+        expect(res.body.resposta).toBe('Resposta Gemini simulada');
+        expect(global.fetch.mock.calls[0][1].body).not.toMatch(/secreto|pendente/);
+    });
 });
