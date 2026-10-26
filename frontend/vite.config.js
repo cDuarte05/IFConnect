@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true, // escuta em todas as interfaces de rede, não só localhost — permite acesso via IP da LAN
+    allowedHosts: ['ifconnect.onrender.com'],
     proxy: {
       '/api': 'http://localhost:4000',
     },
