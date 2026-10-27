@@ -146,4 +146,4 @@ Orientação: Prof. Carlos Eduardo Pagani, IFSP – Campus Hortolândia.
 
 ## 📄 Licença
 
-Projeto acadêmico de código aberto. Adicione um arquivo `LICENSE` com a licença escolhida pela equipe.
+Projeto acadêmico de código aberto.
