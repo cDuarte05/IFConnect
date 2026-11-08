@@ -23,10 +23,10 @@ exports.listar = asyncHandler(async (req, res) => {
 
   const filtrados = busca
     ? artigos.filter(
-        (a) =>
-          a.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-          (a.palavrasChave || '').toLowerCase().includes(busca.toLowerCase())
-      )
+      (a) =>
+        a.titulo.toLowerCase().includes(busca.toLowerCase()) ||
+        (a.palavrasChave || '').toLowerCase().includes(busca.toLowerCase())
+    )
     : artigos;
 
   res.json(filtrados);
@@ -120,4 +120,15 @@ exports.moderar = asyncHandler(async (req, res) => {
   artigo.status = status;
   await artigo.save();
   res.json(artigo);
+});
+
+// Exclusão: só o próprio autor pode excluir a publicação que criou.
+exports.excluir = asyncHandler(async (req, res) => {
+  const artigo = await Article.findByPk(req.params.id);
+  if (!artigo) return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
+  if (artigo.autorId !== req.usuario.id) {
+    return res.status(403).json({ erro: true, mensagem: 'Você só pode excluir suas próprias publicações' });
+  }
+  await artigo.destroy();
+  res.status(204).send();
 });

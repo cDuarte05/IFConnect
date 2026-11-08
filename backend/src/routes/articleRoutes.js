@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
 const controller = require('../controllers/articleController');
+const commentController = require('../controllers/commentController');
 const { autenticar, autenticarOpcional, permitir } = require('../middleware/auth');
 const validar = require('../middleware/validate');
 
@@ -50,6 +51,26 @@ router.put(
   ],
   validar,
   controller.atualizar
+);
+
+router.delete('/:id', autenticar, controller.excluir);
+
+// Comentários da publicação
+router.get('/:id/comentarios', commentController.listarPorArtigo);
+router.get('/:id/comentarios/stream', commentController.streamArtigo);
+router.post(
+  '/:id/comentarios',
+  autenticar,
+  [
+    body('conteudo')
+      .trim()
+      .notEmpty()
+      .withMessage('O comentário não pode ficar vazio')
+      .isLength({ min: 1, max: 2000 })
+      .withMessage('O comentário deve ter no máximo 2000 caracteres'),
+  ],
+  validar,
+  commentController.criarPorArtigo
 );
 
 router.patch(

@@ -10,6 +10,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
 const donationRoutes = require('./routes/donationRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const agenteRoutes = require('./routes/agenteRoutes');
 
@@ -38,6 +39,7 @@ app.use('/api/categorias', categoryRoutes);
 app.use('/api/artigos', articleRoutes);
 app.use('/api/campanhas', campaignRoutes);
 app.use('/api/doacoes', donationRoutes);
+app.use('/api/comentarios', commentRoutes);
 app.use('/api/agente', agenteRoutes);
 app.use(errorHandler);
 
