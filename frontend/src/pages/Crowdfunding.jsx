@@ -77,7 +77,12 @@ export default function Crowdfunding() {
         </div>
         <div>
           <label htmlFor="filtroStatus" className="rotulo-mono">Situação</label>
-          <select id="filtroStatus" value={status} onChange={(e) => setStatus(e.target.value)} style={{ maxWidth: 220 }}>
+          <select
+            id="filtroStatus"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            style={{ maxWidth: 300 }}
+          >
             <option value="">Em andamento e financiados</option>
             <option value="ativa">Só em andamento</option>
             <option value="financiada">Só com meta atingida</option>
