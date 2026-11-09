@@ -1,5 +1,7 @@
 const { Op } = require('sequelize');
 const { Article, Campaign, Category } = require('../models');
+const { getConfig } = require('./agente/config');
+const { getLlmProvider } = require('./agente/providers/llm');
 
 const STATUS_PUBLICOS_PROJETO = ['ativa', 'financiada'];
 
@@ -97,74 +99,22 @@ const mensagemUsuario = (pergunta, contexto) => {
   return `<contexto>${contextoJson}</contexto>\n<pergunta>${pergunta}</pergunta>`;
 };
 
-async function chamarAnthropic({ pergunta, contexto }) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': process.env.AGENTE_IA_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.AGENTE_IA_MODEL || 'claude-haiku-5-5',
-        max_tokens: 500,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: mensagemUsuario(pergunta, contexto) }],
-      }),
-    });
-    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
-    const data = await resp.json();
-    return (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function chamarGemini({ pergunta, contexto }) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
-  try {
-    const modelo = process.env.AGENTE_IA_MODEL || 'gemini-3.1-flash-lite';
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`,
-      {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {
-          'content-type': 'application/json',
-          'x-goog-api-key': process.env.AGENTE_IA_API_KEY,
-        },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: 'user', parts: [{ text: mensagemUsuario(pergunta, contexto) }] }],
-          generationConfig: { maxOutputTokens: 800, temperature: 0.3 },
-        }),
-      }
-    );
-    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
-    const data = await resp.json();
-    const partes = data.candidates?.[0]?.content?.parts || [];
-    return partes.map((p) => p.text || '').join('\n').trim();
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-const PROVEDORES = { anthropic: chamarAnthropic, gemini: chamarGemini };
-
 // Retorna texto do provedor ou null (sem chave, provedor desconhecido, timeout, erro).
 async function tentarProvedor(pergunta, contexto) {
-  const chamar = PROVEDORES[process.env.AGENTE_IA_PROVIDER];
-  if (!chamar || !process.env.AGENTE_IA_API_KEY) {
+  const config = getConfig();
+  const provider = getLlmProvider(config.provider);
+  if (!provider || !config.apiKey) {
     if (process.env.NODE_ENV !== 'test') console.warn('[agente] provedor/chave não configurados — usando modo busca');
     return null;
   }
   try {
-    return (await chamar({ pergunta, contexto })) || null;
+    return (
+      (await provider.generate({
+        system: SYSTEM_PROMPT,
+        user: mensagemUsuario(pergunta, contexto),
+        config,
+      })) || null
+    );
   } catch (err) {
     console.warn('[agente] provedor indisponível, usando fallback:', err.message);
     return null;
