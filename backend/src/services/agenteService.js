@@ -90,8 +90,12 @@ Regras:
 - Não fale sobre moderação interna, contas de usuários ou dados pessoais.
 - Orientação de navegação: publicações ficam na página inicial (/); projetos na "Vitrine científica" (/vitrine); para publicar é preciso entrar (/entrar) ou criar conta (/registrar) e usar "Publicar" (/publicar) ou "Cadastrar projeto" (/vitrine/nova). Publicações e projetos novos passam por análise antes de ficarem públicos.`;
 
-const mensagemUsuario = (pergunta, contexto) =>
-  `<contexto>${JSON.stringify(contexto)}</contexto>\n<pergunta>${pergunta}</pergunta>`;
+const mensagemUsuario = (pergunta, contexto) => {
+  const contextoJson = JSON.stringify(contexto)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e');
+  return `<contexto>${contextoJson}</contexto>\n<pergunta>${pergunta}</pergunta>`;
+};
 
 async function chamarAnthropic({ pergunta, contexto }) {
   const controller = new AbortController();
@@ -198,4 +202,4 @@ async function responder(perguntaBruta) {
   };
 }
 
-module.exports = { responder, extrairTermos };
+module.exports = { responder, extrairTermos, mensagemUsuario };
