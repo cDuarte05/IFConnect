@@ -1,5 +1,6 @@
 const { Article, User, Category } = require('../models');
 const asyncHandler = require('../utils/asyncHandler');
+const { agendarIndexacao } = require('../services/agente/ingest/indexer');
 
 const INCLUDE_AUTOR_CATEGORIA = [
   { model: User, as: 'autor', attributes: ['id', 'nome', 'tipo', 'instituicao'] },
@@ -58,6 +59,7 @@ exports.criar = asyncHandler(async (req, res) => {
     // professores publicam direto; demais perfis entram em revisão (moderação leve)
     status: req.usuario.tipo === 'professor_moderador' ? 'publicado' : 'em_revisao',
   });
+  agendarIndexacao('artigo', artigo.id);
   res.status(201).json(artigo);
 });
 
@@ -109,6 +111,7 @@ exports.atualizar = asyncHandler(async (req, res) => {
   if (artigo.status === 'recusado') artigo.status = 'em_revisao';
 
   await artigo.save();
+  agendarIndexacao('artigo', artigo.id);
   res.json(artigo);
 });
 
@@ -119,5 +122,6 @@ exports.moderar = asyncHandler(async (req, res) => {
   if (!artigo) return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
   artigo.status = status;
   await artigo.save();
+  agendarIndexacao('artigo', artigo.id);
   res.json(artigo);
 });
