@@ -4,6 +4,7 @@ const Category = require('./Category');
 const Article = require('./Article');
 const Campaign = require('./Campaign');
 const Donation = require('./Donation');
+const AgentChunk = require('./AgentChunk');
 
 // Associações
 User.hasMany(Article, { foreignKey: 'autorId', as: 'artigos' });
@@ -27,4 +28,4 @@ Article.belongsTo(Category, { foreignKey: { name: 'categoryId', allowNull: true 
 Category.hasMany(Campaign, { foreignKey: 'categoryId', as: 'campanhas' });
 Campaign.belongsTo(Category, { foreignKey: { name: 'categoryId', allowNull: true }, as: 'categoria' });
 
-module.exports = { sequelize, User, Category, Article, Campaign, Donation };
+module.exports = { sequelize, User, Category, Article, Campaign, Donation, AgentChunk };
