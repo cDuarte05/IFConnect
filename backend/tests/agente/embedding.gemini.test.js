@@ -1,4 +1,8 @@
-const { criarGeminiEmbeddingProvider, LIMITE_LOTE } = require('../../src/services/agente/providers/embedding/gemini');
+const {
+  criarGeminiEmbeddingProvider,
+  LIMITE_LOTE,
+  TIMEOUT_EMBED_QUERY_MS,
+} = require('../../src/services/agente/providers/embedding/gemini');
 const { getEmbeddingProvider } = require('../../src/services/agente/providers/embedding');
 const { ProvedorIndisponivelError } = require('../../src/services/agente/providers/errors');
 
@@ -25,6 +29,10 @@ describe('Provedor Gemini de Embedding (providers/embedding/gemini.js)', () => {
 
   afterEach(() => {
     global.fetch = fetchOriginal;
+  });
+
+  test('exporta TIMEOUT_EMBED_QUERY_MS igual a 3000 ms', () => {
+    expect(TIMEOUT_EMBED_QUERY_MS).toBe(3000);
   });
 
   test('getEmbeddingProvider retorna null quando gemini não tem chave configurada', () => {
@@ -72,6 +80,20 @@ describe('Provedor Gemini de Embedding (providers/embedding/gemini.js)', () => {
     expect(vetor).toEqual([1, 0, 0, 0]);
   });
 
+  test('embedQuery não faz retry em falha 429 ou 5xx e lança erro na primeira tentativa', async () => {
+    const provider = criarGeminiEmbeddingProvider(configBase);
+
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+    });
+
+    await expect(provider.embedQuery('Pergunta sem retry')).rejects.toThrow(
+      ProvedorIndisponivelError
+    );
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
   test('embedDocuments envia RETRIEVAL_DOCUMENT e divide em lotes respeitando o limite', async () => {
     const provider = criarGeminiEmbeddingProvider(configBase);
 
@@ -115,7 +137,7 @@ describe('Provedor Gemini de Embedding (providers/embedding/gemini.js)', () => {
     }
   });
 
-  test('faz retry em resposta 429 ou 5xx e recupera se a segunda for sucesso', async () => {
+  test('embedDocuments faz retry em resposta 429 ou 5xx e recupera se a segunda for sucesso', async () => {
     const provider = criarGeminiEmbeddingProvider(configBase);
 
     global.fetch
@@ -126,34 +148,70 @@ describe('Provedor Gemini de Embedding (providers/embedding/gemini.js)', () => {
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          embedding: { values: [1, 1, 1, 1] },
+          embeddings: [{ values: [1, 1, 1, 1] }],
         }),
       });
 
-    const vetor = await provider.embedQuery('Pergunta com retry');
+    const resultado = await provider.embedDocuments(['Doc com retry']);
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
-    expect(vetor).toHaveLength(4);
-    expect(norma(vetor)).toBeCloseTo(1, 5);
+    expect(resultado).toHaveLength(1);
+    expect(norma(resultado[0])).toBeCloseTo(1, 5);
   });
 
-  test('lança ProvedorIndisponivelError tipado se o retry também falhar', async () => {
+  test('embedDocuments respeita o cabeçalho Retry-After quando presente', async () => {
     const provider = criarGeminiEmbeddingProvider(configBase);
 
     global.fetch
       .mockResolvedValueOnce({
         ok: false,
         status: 429,
+        headers: { 'retry-after': '0.05' },
       })
       .mockResolvedValueOnce({
-        ok: false,
-        status: 429,
+        ok: true,
+        json: async () => ({
+          embeddings: [{ values: [0, 2, 0, 0] }],
+        }),
       });
 
-    await expect(provider.embedQuery('Pergunta falha')).rejects.toThrow(
+    const inicio = Date.now();
+    const resultado = await provider.embedDocuments(['Doc com retry-after']);
+    const decorrido = Date.now() - inicio;
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(decorrido).toBeGreaterThanOrEqual(40);
+    expect(resultado).toHaveLength(1);
+  });
+
+  test('embedDocuments faz até 3 tentativas (backoff crescente) e lança erro se todas falharem', async () => {
+    const provider = criarGeminiEmbeddingProvider(configBase);
+
+    global.fetch
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({ ok: false, status: 503 });
+
+    await expect(provider.embedDocuments(['Doc falha total'])).rejects.toThrow(
       ProvedorIndisponivelError
     );
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+  });
+
+  test('embedDocuments valida embeddings.length === pedaco.length e lança ProvedorIndisponivelError se diferir', async () => {
+    const provider = criarGeminiEmbeddingProvider(configBase);
+
+    // Enviando 2 textos, mas API retorna só 1 embedding
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        embeddings: [{ values: [1, 0, 0, 0] }],
+      }),
+    });
+
+    await expect(
+      provider.embedDocuments(['Texto 1', 'Texto 2'])
+    ).rejects.toThrow(ProvedorIndisponivelError);
   });
 
   test('lança erro tipado quando a dimensão do vetor recebido for diferente da esperada', async () => {
@@ -173,4 +231,3 @@ describe('Provedor Gemini de Embedding (providers/embedding/gemini.js)', () => {
     );
   });
 });
-

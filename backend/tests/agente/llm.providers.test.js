@@ -166,6 +166,8 @@ describe('Provedores de LLM (providers/llm/*)', () => {
 
       const body = JSON.parse(options.body);
       expect(body.model).toBe('llama-3.3-70b-versatile');
+      expect(body.max_tokens).toBe(500);
+      expect(body.temperature).toBe(0.3);
       expect(body.messages).toEqual([
         { role: 'system', content: 'SysGroq' },
         { role: 'user', content: 'UserGroq' },

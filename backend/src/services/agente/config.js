@@ -3,13 +3,7 @@
  * Lê process.env a cada chamada para permitir testes dinâmicos.
  */
 
-function parseNumber(value, padrao) {
-  if (value === undefined || value === null || value === '') return padrao;
-  const n = Number(value);
-  return Number.isNaN(n) ? padrao : n;
-}
-
-function parseNullableNumber(value, padrao = null) {
+function parseNumber(value, padrao = null) {
   if (value === undefined || value === null || value === '') return padrao;
   const n = Number(value);
   return Number.isNaN(n) ? padrao : n;
@@ -34,7 +28,7 @@ function getConfig() {
   }
 
   const topK = parseNumber(process.env.AGENTE_RAG_TOP_K, 4);
-  const minScore = parseNullableNumber(process.env.AGENTE_RAG_MIN_SCORE, null);
+  const minScore = parseNumber(process.env.AGENTE_RAG_MIN_SCORE, null);
 
   return {
     enabled,
@@ -55,5 +49,4 @@ function getConfig() {
   };
 }
 
-module.exports = { getConfig };
-
+module.exports = { getConfig, parseNumber };

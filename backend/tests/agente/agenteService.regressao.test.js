@@ -94,5 +94,16 @@ describe('Regressão de agenteService com provedor Groq e busca', () => {
     expect(resultado.fontes.length).toBeGreaterThan(0);
     expect(global.fetch).not.toHaveBeenCalled();
   });
+
+  test('pergunta por "embarcados" e verifica que o artigo em_revisao não aparece em fontes', async () => {
+    process.env.AGENTE_IA_ENABLED = 'true';
+    process.env.AGENTE_IA_PROVIDER = 'groq';
+    delete process.env.AGENTE_IA_API_KEY;
+
+    const resultado = await responder('Quais conteúdos existem sobre embarcados?');
+
+    expect(resultado.fontes.some((f) => f.titulo === 'Rascunho de Embarcados não publicado')).toBe(false);
+    expect(resultado.fontes.some((f) => f.titulo === 'Sistemas Embarcados com Arduino no IF')).toBe(true);
+  });
 });
 

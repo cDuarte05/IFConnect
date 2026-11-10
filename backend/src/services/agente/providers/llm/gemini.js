@@ -1,4 +1,4 @@
-const { fetchComTimeout } = require('../http');
+const { fetchJsonComTimeout } = require('../http');
 const { ProvedorIndisponivelError } = require('../errors');
 
 async function generate({ system, user, config }) {
@@ -7,7 +7,7 @@ async function generate({ system, user, config }) {
   const timeoutMs = config?.timeoutMs || 8000;
 
   try {
-    const resp = await fetchComTimeout(
+    const { ok, status, data } = await fetchJsonComTimeout(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
       {
         method: 'POST',
@@ -24,15 +24,14 @@ async function generate({ system, user, config }) {
       timeoutMs
     );
 
-    if (!resp.ok) {
-      throw new ProvedorIndisponivelError(`Provedor respondeu ${resp.status}`, {
+    if (!ok) {
+      throw new ProvedorIndisponivelError(`Provedor respondeu ${status}`, {
         provedor: 'gemini',
-        status: resp.status,
+        status,
       });
     }
 
-    const data = await resp.json();
-    const partes = data.candidates?.[0]?.content?.parts || [];
+    const partes = data?.candidates?.[0]?.content?.parts || [];
     return partes.map((p) => p.text || '').join('\n').trim();
   } catch (err) {
     if (err instanceof ProvedorIndisponivelError) throw err;
@@ -41,4 +40,3 @@ async function generate({ system, user, config }) {
 }
 
 module.exports = { generate };
-

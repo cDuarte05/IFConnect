@@ -1,4 +1,4 @@
-const { fetchComTimeout } = require('../http');
+const { fetchJsonComTimeout } = require('../http');
 const { ProvedorIndisponivelError } = require('../errors');
 
 async function generate({ system, user, config }) {
@@ -7,7 +7,7 @@ async function generate({ system, user, config }) {
   const timeoutMs = config?.timeoutMs || 8000;
 
   try {
-    const resp = await fetchComTimeout(
+    const { ok, status, data } = await fetchJsonComTimeout(
       'https://api.anthropic.com/v1/messages',
       {
         method: 'POST',
@@ -26,15 +26,14 @@ async function generate({ system, user, config }) {
       timeoutMs
     );
 
-    if (!resp.ok) {
-      throw new ProvedorIndisponivelError(`Provedor respondeu ${resp.status}`, {
+    if (!ok) {
+      throw new ProvedorIndisponivelError(`Provedor respondeu ${status}`, {
         provedor: 'anthropic',
-        status: resp.status,
+        status,
       });
     }
 
-    const data = await resp.json();
-    return (data.content || [])
+    return (data?.content || [])
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
       .join('\n')
@@ -46,4 +45,3 @@ async function generate({ system, user, config }) {
 }
 
 module.exports = { generate };
-

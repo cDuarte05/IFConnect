@@ -1,4 +1,4 @@
-const { fetchComTimeout } = require('../http');
+const { fetchJsonComTimeout } = require('../http');
 const { ProvedorIndisponivelError } = require('../errors');
 
 async function generate({ system, user, config }) {
@@ -7,7 +7,7 @@ async function generate({ system, user, config }) {
   const timeoutMs = config?.timeoutMs || 8000;
 
   try {
-    const resp = await fetchComTimeout(
+    const { ok, status, data } = await fetchJsonComTimeout(
       'https://api.groq.com/openai/v1/chat/completions',
       {
         method: 'POST',
@@ -21,20 +21,21 @@ async function generate({ system, user, config }) {
             { role: 'system', content: system },
             { role: 'user', content: user },
           ],
+          max_tokens: 500,
+          temperature: 0.3,
         }),
       },
       timeoutMs
     );
 
-    if (!resp.ok) {
-      throw new ProvedorIndisponivelError(`Provedor respondeu ${resp.status}`, {
+    if (!ok) {
+      throw new ProvedorIndisponivelError(`Provedor respondeu ${status}`, {
         provedor: 'groq',
-        status: resp.status,
+        status,
       });
     }
 
-    const data = await resp.json();
-    return (data.choices?.[0]?.message?.content || '').trim();
+    return (data?.choices?.[0]?.message?.content || '').trim();
   } catch (err) {
     if (err instanceof ProvedorIndisponivelError) throw err;
     throw new ProvedorIndisponivelError(err.message, { provedor: 'groq' });
@@ -42,4 +43,3 @@ async function generate({ system, user, config }) {
 }
 
 module.exports = { generate };
-

@@ -1,8 +1,9 @@
 /**
  * Executa requisição HTTP com timeout utilizando AbortController.
- * Garante que o timer do timeout seja cancelado no bloco finally.
+ * Mantém o timer ativo até depois do parsing de json, cancelando no finally.
+ * Retorna { ok, status, data, headers }.
  */
-async function fetchComTimeout(url, options = {}, timeoutMs = 8000) {
+async function fetchJsonComTimeout(url, options = {}, timeoutMs = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), Number(timeoutMs) || 8000);
 
@@ -11,11 +12,23 @@ async function fetchComTimeout(url, options = {}, timeoutMs = 8000) {
       ...options,
       signal: controller.signal,
     });
-    return response;
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+      headers: response.headers,
+    };
   } finally {
     clearTimeout(timer);
   }
 }
 
-module.exports = { fetchComTimeout };
-
+module.exports = { fetchJsonComTimeout };

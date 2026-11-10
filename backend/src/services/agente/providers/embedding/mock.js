@@ -3,6 +3,8 @@
  * Dimensão 64: hash das palavras normalizadas em buckets com contagem e normalização L2.
  */
 
+const { normalizarL2 } = require('./vetor');
+
 const normalizar = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 function hashString(str) {
@@ -12,12 +14,6 @@ function hashString(str) {
     hash |= 0;
   }
   return Math.abs(hash);
-}
-
-function normalizarL2(vetor) {
-  const norma = Math.sqrt(vetor.reduce((soma, v) => soma + v * v, 0));
-  if (norma === 0) return vetor;
-  return vetor.map((v) => v / norma);
 }
 
 function criarVetor(texto, dim = 64) {
