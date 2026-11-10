@@ -77,7 +77,8 @@ describe('Publicações — edição e moderação', () => {
     const res = await request(app)
       .post('/api/artigos')
       .set('Authorization', `Bearer ${autorToken}`)
-      .send({ titulo: 'Original', resumo: 'Resumo original', conteudo: 'Conteúdo original', tipo: 'texto' });
+      .send({ titulo: 'Publicação original', resumo: 'Resumo original', conteudo: 'Conteúdo original', tipo: 'texto' });
+    expect(res.status).toBe(201);
     artigoId = res.body.id;
   });
 

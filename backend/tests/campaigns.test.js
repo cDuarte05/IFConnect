@@ -82,6 +82,7 @@ describe('Projetos — edição e moderação', () => {
       .post('/api/campanhas')
       .set('Authorization', `Bearer ${autorToken}`)
       .send({ titulo: 'Projeto original', descricao: 'Descrição original', metaFinanceira: 500 });
+    expect(res.status).toBe(201);
     campanhaId = res.body.id;
   });
 
