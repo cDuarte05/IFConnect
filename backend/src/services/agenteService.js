@@ -99,6 +99,94 @@ const mensagemUsuario = (pergunta, contexto) => {
   return `<contexto>${contextoJson}</contexto>\n<pergunta>${pergunta}</pergunta>`;
 };
 
+async function chamarAnthropic({ pergunta, contexto }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': process.env.AGENTE_IA_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: process.env.AGENTE_IA_MODEL || 'claude-haiku-5-5',
+        max_tokens: 500,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: mensagemUsuario(pergunta, contexto) }],
+      }),
+    });
+    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
+    const data = await resp.json();
+    return (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function chamarGemini({ pergunta, contexto }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
+  try {
+    const modelo = process.env.AGENTE_IA_MODEL || 'gemini-3.1-flash-lite';
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:generateContent`,
+      {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'content-type': 'application/json',
+          'x-goog-api-key': process.env.AGENTE_IA_API_KEY,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: 'user', parts: [{ text: mensagemUsuario(pergunta, contexto) }] }],
+          generationConfig: { maxOutputTokens: 800, temperature: 0.3 },
+        }),
+      }
+    );
+    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
+    const data = await resp.json();
+    const partes = data.candidates?.[0]?.content?.parts || [];
+    return partes.map((p) => p.text || '').join('\n').trim();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function chamarGroq({ pergunta, contexto }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
+  try {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${process.env.AGENTE_IA_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: process.env.AGENTE_IA_MODEL || 'llama-3.3-70b-versatile',
+        max_tokens: 500,
+        temperature: 0.3,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: mensagemUsuario(pergunta, contexto) },
+        ],
+      }),
+    });
+    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
+    const data = await resp.json();
+    return (data.choices?.[0]?.message?.content || '').trim();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const PROVEDORES = { anthropic: chamarAnthropic, gemini: chamarGemini, groq: chamarGroq };
+
 // Retorna texto do provedor ou null (sem chave, provedor desconhecido, timeout, erro).
 async function tentarProvedor(pergunta, contexto) {
   const config = getConfig();

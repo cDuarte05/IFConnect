@@ -113,6 +113,14 @@ export default function Profile() {
                 {(a.status !== 'publicado' || perfil.tipo === 'professor_moderador') && (
                   <Link to={`/publicacoes/${a.id}/editar`} className="rotulo-mono">editar</Link>
                 )}
+                <button
+                  type="button"
+                  className="rotulo-mono"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--cor-alerta)' }}
+                  onClick={() => excluirArtigo(a.id)}
+                >
+                  excluir
+                </button>
               </div>
             </div>
           ))
@@ -140,4 +148,15 @@ export default function Profile() {
       </section>
     </div>
   );
+
+  async function excluirArtigo(id) {
+    if (!window.confirm('Tem certeza que deseja excluir esta publicação? Esta ação não pode ser desfeita.')) return;
+    try {
+      await api.delete(`/artigos/${id}`);
+      setMeusArtigos((lista) => lista.filter((a) => a.id !== id));
+    } catch (err) {
+      window.alert(err.response?.data?.mensagem || 'Não foi possível excluir a publicação.');
+    }
+  }
+
 }
