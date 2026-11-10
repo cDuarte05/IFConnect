@@ -16,7 +16,9 @@ async function fetchJsonComTimeout(url, options = {}, timeoutMs = 8000) {
     let data = null;
     try {
       data = await response.json();
-    } catch {
+    } catch (err) {
+      // timeout/abort deve propagar; só ignoramos corpo inválido ou ausente
+      if (controller.signal.aborted) throw err;
       data = null;
     }
 

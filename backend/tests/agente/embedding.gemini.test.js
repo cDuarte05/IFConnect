@@ -2,6 +2,8 @@ const {
   criarGeminiEmbeddingProvider,
   LIMITE_LOTE,
   TIMEOUT_EMBED_QUERY_MS,
+  MAX_RETRY_AFTER_MS,
+  calcularDelayRetry,
 } = require('../../src/services/agente/providers/embedding/gemini');
 const { getEmbeddingProvider } = require('../../src/services/agente/providers/embedding');
 const { ProvedorIndisponivelError } = require('../../src/services/agente/providers/errors');
@@ -182,6 +184,46 @@ describe('Provedor Gemini de Embedding (providers/embedding/gemini.js)', () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(decorrido).toBeGreaterThanOrEqual(40);
     expect(resultado).toHaveLength(1);
+  });
+
+  test('embedDocuments limita a espera do cabeçalho Retry-After ao teto de 10s', async () => {
+    jest.useFakeTimers();
+    try {
+      const provider = criarGeminiEmbeddingProvider(configBase);
+
+      global.fetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 429,
+          headers: { 'retry-after': '3600' },
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            embeddings: [{ values: [0, 2, 0, 0] }],
+          }),
+        });
+
+      const promise = provider.embedDocuments(['Doc com retry-after excessivo']);
+
+      // Avança os timers pelo teto de 10s (e não 3600s)
+      await jest.advanceTimersByTimeAsync(10000);
+
+      const resultado = await promise;
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(resultado).toHaveLength(1);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('calcularDelayRetry limita tempo ao teto MAX_RETRY_AFTER_MS (10s) para segundos e datas distantes', () => {
+    expect(MAX_RETRY_AFTER_MS).toBe(10000);
+    expect(calcularDelayRetry({ 'retry-after': '3600' }, 0)).toBe(10000);
+    expect(calcularDelayRetry({ 'retry-after': '99999' }, 0)).toBe(10000);
+
+    const dataFuturaDistante = new Date(Date.now() + 3600 * 1000).toUTCString();
+    expect(calcularDelayRetry({ 'retry-after': dataFuturaDistante }, 0)).toBe(10000);
   });
 
   test('embedDocuments faz até 3 tentativas (backoff crescente) e lança erro se todas falharem', async () => {

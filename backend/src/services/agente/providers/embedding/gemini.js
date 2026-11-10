@@ -4,6 +4,7 @@ const { normalizarL2 } = require('./vetor');
 
 const LIMITE_LOTE = 50;
 const TIMEOUT_EMBED_QUERY_MS = 3000;
+const MAX_RETRY_AFTER_MS = 10000;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -30,11 +31,11 @@ function calcularDelayRetry(headers, tentativaIndex) {
   if (retryAfter !== undefined && retryAfter !== null && retryAfter !== '') {
     const segundos = Number(retryAfter);
     if (!Number.isNaN(segundos)) {
-      return Math.max(0, Math.round(segundos * 1000));
+      return Math.min(MAX_RETRY_AFTER_MS, Math.max(0, Math.round(segundos * 1000)));
     }
     const dataMs = Date.parse(retryAfter);
     if (!Number.isNaN(dataMs)) {
-      return Math.max(0, dataMs - Date.now());
+      return Math.min(MAX_RETRY_AFTER_MS, Math.max(0, dataMs - Date.now()));
     }
   }
 
@@ -199,6 +200,8 @@ function criarGeminiEmbeddingProvider(config = {}) {
 module.exports = {
   criarGeminiEmbeddingProvider,
   normalizarVetor,
+  calcularDelayRetry,
+  MAX_RETRY_AFTER_MS,
   LIMITE_LOTE,
   TIMEOUT_EMBED_QUERY_MS,
 };

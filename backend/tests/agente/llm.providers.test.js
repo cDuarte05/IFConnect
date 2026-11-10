@@ -188,6 +188,22 @@ describe('Provedores de LLM (providers/llm/*)', () => {
         })
       ).rejects.toThrow(ProvedorIndisponivelError);
     });
+
+    test('timeout durante a leitura do corpo lança ProvedorIndisponivelError', async () => {
+      global.fetch.mockImplementationOnce((url, options) =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () =>
+            new Promise((_, reject) =>
+              options.signal.addEventListener('abort', () => reject(new Error('aborted')))
+            ),
+        })
+      );
+      await expect(
+        provider.generate({ system: 's', user: 'u', config: { apiKey: 'k', timeoutMs: 50 } })
+      ).rejects.toThrow(ProvedorIndisponivelError);
+    });
   });
 });
 
