@@ -36,5 +36,13 @@ describe('Processamento de Citações (generation/citacoes.js)', () => {
     expect(processarCitacoes(undefined, [1])).toEqual({ texto: '', refsCitadas: [] });
     expect(processarCitacoes('', [1])).toEqual({ texto: '', refsCitadas: [] });
   });
+
+  test('11. aceita Set ou valores nulos/undefined em refsValidas', () => {
+    const comSet = processarCitacoes('Fonte [1] e [2].', new Set([2]));
+    expect(comSet).toEqual({ texto: 'Fonte e [2].', refsCitadas: [2] });
+
+    const comNull = processarCitacoes('Fonte [1].', null);
+    expect(comNull).toEqual({ texto: 'Fonte.', refsCitadas: [] });
+  });
 });
 

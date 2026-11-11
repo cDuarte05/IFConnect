@@ -177,5 +177,74 @@ describe('Prompt RAG e Sanitização (generation/prompt.js)', () => {
     expect(SYSTEM_PROMPT_RAG).toContain('<pergunta>');
     expect(SYSTEM_PROMPT_RAG).toContain('DADOS');
   });
+
+  test('7. escaparTags e sanitizarPergunta lidam com entradas não-string e bordas', () => {
+    expect(escaparTags(null)).toBe('');
+    expect(escaparTags(123)).toBe('');
+    expect(escaparTags('<a>b</a>')).toBe('\\u003ca\\u003eb\\u003c/a\\u003e');
+
+    expect(sanitizarPergunta(null)).toBe('');
+    expect(sanitizarPergunta(123)).toBe('');
+    expect(sanitizarPergunta('   ')).toBe('');
+  });
+
+  test('8. truncarTrecho corta no último espaço quando há espaço > 0 e faz corte duro caso contrário', () => {
+    const fontes = [
+      {
+        ref: 1,
+        tipo: 'publicacao',
+        titulo: 'Corte em fronteira',
+        status: 'publicado',
+        trechos: [
+          'palavra1 palavra2 palavra3', // maxTrecho=15 -> 'palavra1 palavra' -> último espaço em 8 -> 'palavra1'
+          'abcdefghij', // sem espaço -> 'abcde'
+          ' abcdefghij', // espaço só no índice 0 -> corte duro ' abcd'
+          '',
+        ],
+      },
+    ];
+
+    const { contexto } = construirContexto(fontes, { maxTrecho: 15, maxTotal: 500 });
+    expect(contexto.fontes[0].trechos[0]).toBe('palavra1');
+    expect(contexto.fontes[0].trechos[3]).toBe('');
+
+    const { contexto: ctxCurto } = construirContexto(
+      [
+        {
+          ref: 1,
+          tipo: 'publicacao',
+          titulo: 'Sem espaco',
+          status: 'publicado',
+          trechos: ['abcdefghij', ' abcdefghij'],
+        },
+      ],
+      { maxTrecho: 5, maxTotal: 500 }
+    );
+    expect(ctxCurto.fontes[0].trechos).toEqual(['abcde', ' abcd']);
+  });
+
+  test('9. estouro de maxTotal interrompe imediatamente e não admite fonte pequena posterior', () => {
+    const fontes = [
+      { ref: 1, tipo: 'publicacao', titulo: 'F1', status: 'publicado', trechos: ['1234567890'] }, // 10 chars
+      { ref: 2, tipo: 'publicacao', titulo: 'F2', status: 'publicado', trechos: ['1234567890'] }, // +10 > 15 -> para
+      { ref: 3, tipo: 'publicacao', titulo: 'F3', status: 'publicado', trechos: ['x'] }, // 1 char: NÃO pode entrar
+    ];
+
+    const { contexto, refsIncluidas } = construirContexto(fontes, { maxTrecho: 50, maxTotal: 15 });
+    expect(refsIncluidas).toEqual([1]);
+    expect(contexto.fontes).toHaveLength(1);
+  });
+
+  test('10. construirContexto trata fontes nulas, trechos não-array/objeto vazio e tipoPublicacao', () => {
+    const { contexto, refsIncluidas } = construirContexto([
+      null,
+      { ref: 1, tipo: 'publicacao', titulo: 'Sem array', trechos: null },
+      { ref: 2, tipo: 'especial', tipoPublicacao: 'poema', titulo: 'Com obj vazio', status: 'publicado', trechos: [{}] },
+    ]);
+
+    expect(refsIncluidas).toEqual([2]);
+    expect(contexto.fontes[0].tipoPublicacao).toBe('poema');
+    expect(contexto.fontes[0].trechos).toEqual(['']);
+  });
 });
 

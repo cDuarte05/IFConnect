@@ -34,11 +34,20 @@ describe('fundirRrf (unitário)', () => {
     expect(mapa.get('a').posicoes).toEqual([1, null]);
   });
 
-  test('aceita listas nulas ou vazias', () => {
+  test('aceita listas nulas ou vazias, strings, itens inválidos e duplicatas na mesma lista', () => {
     expect(fundirRrf([null, []]).size).toBe(0);
     expect(fundirRrf(null).size).toBe(0);
     const mapa = fundirRrf([null, [{ chunkId: 'x' }]]);
     expect(mapa.get('x').rrf).toBeCloseTo(1 / 61, 12);
+
+    // Strings diretas, itens nulos/indefinidos e chunk repetido na mesma lista (conta só a 1ª posição)
+    const mapaMisto = fundirRrf([
+      ['s1', null, undefined, { chunkId: null }, { chunkId: 's1' }, 's2'],
+    ]);
+    expect(mapaMisto.size).toBe(2);
+    expect(mapaMisto.get('s1').rrf).toBeCloseTo(1 / 61, 12);
+    expect(mapaMisto.get('s1').posicoes).toEqual([1]);
+    expect(mapaMisto.get('s2').rrf).toBeCloseTo(1 / 66, 12);
   });
 });
 
@@ -264,27 +273,163 @@ describe('recuperar — recuperação híbrida com filtro de segurança (T10)', 
     expect(fontes).toEqual([]);
   });
 
-  test('12. url e tipo corretos para artigo e projeto', async () => {
+  test('12. url, tipo, status, categoria e tema corretos (e null quando ausentes)', async () => {
     const artigo = await novoArtigo({ titulo: 'Rotulo Artigo', categoryId: categoria.id, tema: 'cientifico', tipo: 'poema' });
-    const campanha = await novaCampanha({ titulo: 'Rotulo Projeto', categoryId: categoria.id });
+    const campanha = await novaCampanha({ titulo: 'Rotulo Projeto', categoryId: categoria.id, tema: 'comunitario' });
+    const artSemMeta = await novoArtigo({ titulo: 'Artigo Sem Meta', tema: null, categoryId: null });
+    const campSemMeta = await novaCampanha({ titulo: 'Campanha Sem Meta', tema: null, categoryId: null });
+
     await semearChunk({ sourceId: artigo.id, texto: 'Título: Rotulo Artigo\nPalavra heliografia.', provider });
     await semearChunk({ sourceType: 'campanha', sourceId: campanha.id, texto: 'Título: Rotulo Projeto\nPalavra heliografia.', provider });
+    await semearChunk({ sourceId: artSemMeta.id, texto: 'Título: Artigo Sem Meta\nPalavra heliografia.', provider });
+    await semearChunk({ sourceType: 'campanha', sourceId: campSemMeta.id, texto: 'Título: Campanha Sem Meta\nPalavra heliografia.', provider });
 
     const { fontes } = await recuperar('heliografia', { provider, k: 10 });
     const fa = fontes.find((f) => f.id === artigo.id);
     const fp = fontes.find((f) => f.id === campanha.id);
+    const fa0 = fontes.find((f) => f.id === artSemMeta.id);
+    const fp0 = fontes.find((f) => f.id === campSemMeta.id);
 
     expect(fa.tipo).toBe('publicacao');
     expect(fa.url).toBe(`/publicacoes/${artigo.id}`);
     expect(fa.tipoPublicacao).toBe('poema');
+    expect(fa.status).toBe('publicado');
     expect(fa.categoria).toBe('Categoria Hibrida');
     expect(fa.tema).toBe('cientifico');
     expect(fa.meta).toBeUndefined();
 
     expect(fp.tipo).toBe('projeto');
     expect(fp.url).toBe(`/vitrine/${campanha.id}`);
+    expect(fp.categoria).toBe('Categoria Hibrida');
+    expect(fp.tema).toBe('comunitario');
     expect(fp.meta).toBe(1000);
     expect(fp.tipoPublicacao).toBeUndefined();
+
+    expect(fa0.categoria).toBeNull();
+    expect(fa0.tema).toBeNull();
+    expect(fp0.categoria).toBeNull();
+    expect(fp0.tema).toBeNull();
+  });
+
+  test('13. mutantes RRF, ordenação de trechos, agregação multi-chunk, erro sem message e filtro de queries por tipo', async () => {
+    // 13a. Provider rejeita com valor sem .message -> vetorialErro === 'falha desconhecida'
+    const artErr = await novoArtigo({ titulo: 'Artigo Fallback Erro' });
+    await semearChunk({ sourceId: artErr.id, texto: 'Título: Artigo Fallback Erro\nTermo xenon.', provider });
+    const spyCampFindAll = jest.spyOn(Campaign, 'findAll');
+    const resErr = await recuperar('xenon', {
+      provider: { info: provider.info, embedQuery: jest.fn().mockRejectedValue({}) },
+    });
+    expect(resErr.diagnostico.vetorialErro).toBe('falha desconhecida');
+    expect(resErr.diagnostico.descartadosPorStatus).toBe(0);
+    // Só havia artigo nos candidatos: Campaign.findAll não deve ter sido chamado
+    expect(spyCampFindAll).not.toHaveBeenCalled();
+    spyCampFindAll.mockRestore();
+
+    // Só campanha nos candidatos -> Article.findAll não deve ser chamado
+    await AgentChunk.destroy({ where: {} });
+    invalidarIndice();
+    const campSo = await novaCampanha({ titulo: 'Campanha Unica' });
+    await semearChunk({ sourceType: 'campanha', sourceId: campSo.id, texto: 'Título: Campanha Unica\nTermo kripton.', provider });
+    const spyArtFindAll = jest.spyOn(Article, 'findAll');
+    const resCamp = await recuperar('kripton', { provider });
+    expect(resCamp.fontes).toHaveLength(1);
+    expect(spyArtFindAll).not.toHaveBeenCalled();
+    spyArtFindAll.mockRestore();
+
+    // 13b. Multi-chunk onde chunk 1 pontua MAIS que chunk 0, mais segundo artigo de RRF menor,
+    // além de um candidato só vetorial descartado por minScore=null (testa totalAntes - length)
+    await AgentChunk.destroy({ where: {} });
+    invalidarIndice();
+    limparCache();
+
+    // Título com UUID ordenado ao contrário para garantir que a ordem vem do RRF e não do UUID
+    const a1 = await novoArtigo({ titulo: 'Artigo Principal' });
+    const a2 = await novoArtigo({ titulo: 'Artigo Secundario' });
+    const aSoVetor = await novoArtigo({ titulo: 'Artigo So Vetor' });
+
+    // Chunk 0 de a1: tem só 1 ocorrência no corpo (menor BM25 que chunk 1)
+    const c0 = await semearChunk({
+      sourceId: a1.id,
+      chunkIndex: 0,
+      texto: 'Título: Artigo Geral\nMenção a magnetohidrodinamica.',
+      provider,
+    });
+    // Chunk 1 de a1: tem o termo NO TÍTULO e várias vezes -> rank #1 lexical e alto cosseno
+    const c1 = await semearChunk({
+      sourceId: a1.id,
+      chunkIndex: 1,
+      texto: 'Título: Magnetohidrodinamica Estelar\nMagnetohidrodinamica aplicada e magnetohidrodinamica computacional.',
+      provider,
+    });
+    // Chunk de a2: 1 ocorrência, texto longo diferente para ter menor BM25 e menor cosseno
+    await semearChunk({
+      sourceId: a2.id,
+      chunkIndex: 0,
+      texto: 'Título: Texto Muito Longo Sem Relacao Direta\nDiversos assuntos gerais diversos e magnetohidrodinamica citada brevemente.',
+      provider,
+    });
+    // Chunk de aSoVetor: tem stopword "sobre", mas sem o termo buscado -> só entra se store falso ou bucket colidir
+    const cVetor = await semearChunk({
+      sourceId: aSoVetor.id,
+      chunkIndex: 0,
+      texto: 'Título: Outro Assunto\nConteúdo sem o termo raro.',
+      provider,
+    });
+
+    const storeFake = {
+      buscar: jest.fn().mockResolvedValue([
+        // c1 tem maior cosseno (0.95) que c0 (0.40), cVetor não tem match lexical (cobertura null)
+        { chunkId: c1.id, sourceType: 'artigo', sourceId: a1.id, chunkIndex: 1, texto: c1.texto, score: 0.95 },
+        { chunkId: c0.id, sourceType: 'artigo', sourceId: a1.id, chunkIndex: 0, texto: c0.texto, score: 0.40 },
+        { chunkId: cVetor.id, sourceType: 'artigo', sourceId: aSoVetor.id, chunkIndex: 0, texto: cVetor.texto, score: 0.30 },
+      ]),
+    };
+
+    const res = await recuperar('magnetohidrodinamica', {
+      provider,
+      minScore: null,
+      k: 10,
+      store: storeFake,
+    });
+
+    // aSoVetor descartado por relevância (3 -> 2 fontes? 4 candidatos -> 3 passam -> descartados = 1)
+    expect(res.diagnostico.descartadosPorRelevancia).toBe(1);
+    expect(res.fontes).toHaveLength(2);
+    expect(res.fontes[0].id).toBe(a1.id);
+    expect(res.fontes[1].id).toBe(a2.id);
+
+    // c1 (pos 1 lexical + pos 1 vetorial -> 2/61) > c0 (1/62 + 1/62 -> 2/62)
+    expect(res.fontes[0].rrf).toBeCloseTo(1 / 61 + 1 / 61, 10);
+    expect(res.fontes[0].rrf).toBeGreaterThan(res.fontes[1].rrf);
+    expect(res.fontes[0].cosseno).toBeCloseTo(0.95, 5);
+    expect(res.fontes[0].cobertura).toBe(1);
+
+    // Trechos devem estar em ordem crescente de chunkIndex ([0, 1]) mesmo com c1 pontuando mais que c0!
+    expect(res.fontes[0].trechos).toEqual([
+      { chunkIndex: 0, texto: c0.texto },
+      { chunkIndex: 1, texto: c1.texto },
+    ]);
+
+    // Caso extra: chunk com maior rrf (c0) tem cobertura menor (0.5) e cosseno maior (0.90),
+    // enquanto c1 tem cobertura maior (1.0) e cosseno menor (0.25)
+    const storeInverso = {
+      buscar: jest.fn().mockResolvedValue([
+        { chunkId: c0.id, sourceType: 'artigo', sourceId: a1.id, chunkIndex: 0, texto: c0.texto, score: 0.90 },
+        { chunkId: cVetor.id, sourceType: 'artigo', sourceId: aSoVetor.id, chunkIndex: 0, texto: cVetor.texto, score: 0.50 },
+        { chunkId: c1.id, sourceType: 'artigo', sourceId: a1.id, chunkIndex: 1, texto: c1.texto, score: 0.25 },
+      ]),
+    };
+    const resInverso = await recuperar('magnetohidrodinamica computacional', {
+      provider,
+      minScore: null,
+      k: 10,
+      store: storeInverso,
+    });
+    const f1 = resInverso.fontes.find((f) => f.id === a1.id);
+    // c0 tem pos 2 lexical (1/62) + pos 1 vetorial (1/61) > c1 pos 1 lexical (1/61) + pos 3 vetorial (1/63)
+    expect(f1.cosseno).toBeCloseTo(0.90, 5);
+    expect(f1.cobertura).toBe(1);
+    expect(f1.trechos.map((t) => t.chunkIndex)).toEqual([0, 1]);
   });
 });
 

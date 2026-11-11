@@ -362,7 +362,9 @@ describe('ragService — recuperação + geração + fallback (T12)', () => {
     expect(ehPerguntaDeNavegacao('receita de bolo')).toBe(false);
     expect(ehPerguntaDeNavegacao('robótica')).toBe(false);
     expect(ehPerguntaDeNavegacao('')).toBe(false);
+    expect(ehPerguntaDeNavegacao('   ')).toBe(false);
     expect(ehPerguntaDeNavegacao(null)).toBe(false);
+    expect(ehPerguntaDeNavegacao(123)).toBe(false);
   });
 });
 
