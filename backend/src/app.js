@@ -16,6 +16,15 @@ const agenteRoutes = require('./routes/agenteRoutes');
 
 const app = express();
 
+// SEG-07: atrás de proxy reverso (Nginx, ALB etc.), configurar TRUST_PROXY (ex.: 1)
+// para o Express resolver req.ip via X-Forwarded-For e o rate limit por IP funcionar corretamente.
+if (process.env.TRUST_PROXY) {
+  app.set(
+    'trust proxy',
+    /^\d+$/.test(process.env.TRUST_PROXY) ? Number(process.env.TRUST_PROXY) : process.env.TRUST_PROXY
+  );
+}
+
 app.use(helmet());
 
 // CORS: em produção, definir CORS_ORIGIN no .env com o(s) domínio(s) do frontend
