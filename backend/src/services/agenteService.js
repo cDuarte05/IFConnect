@@ -2,6 +2,7 @@ const { Op } = require('sequelize');
 const { Article, Campaign, Category } = require('../models');
 const { getConfig } = require('./agente/config');
 const { getLlmProvider } = require('./agente/providers/llm');
+const { consultarRag } = require('./agente/ragService');
 
 const STATUS_PUBLICOS_PROJETO = ['ativa', 'financiada'];
 
@@ -220,6 +221,15 @@ function respostaSemIA({ artigos, projetos, categorias }) {
 }
 
 async function responder(perguntaBruta) {
+  const config = getConfig();
+  if (config.rag.enabled) {
+    try {
+      return await consultarRag(perguntaBruta, { config });
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') console.warn('[agente] RAG falhou, usando fluxo legado:', err.message);
+    }
+  }
+
   const pergunta = perguntaBruta.replace(/[<>]/g, '').trim();
   const termos = extrairTermos(pergunta);
   const conteudo = await buscarConteudo(termos);
