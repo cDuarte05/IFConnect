@@ -138,6 +138,8 @@ Itens citados na documentação como possibilidades futuras, **não** obrigatór
 
 A referência oficial é composta pelo **Documento do Projeto**, pela **Modelagem com IA**, pela **Análise de Viabilidade** e pelo documento de **CI/CD e SecDevOps**, entregues à disciplina.
 
+Documentação técnica, ADRs, matriz de cobertura, relatório de mutação e checklist operacional do Assistente de IA (RAG) em [`docs/agente/`](docs/agente/).
+
 ## 👥 Equipe
 
 **Luis M. S. Solera** · **Henrique C. Duarte** · **Vitor G. Quiroga**

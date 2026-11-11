@@ -1,6 +1,6 @@
 # Matriz de Cobertura — Critérios de Aceite (CA-01 a CA-16)
 
-Referência: [`backend/spec-rag.md`](../../backend/spec-rag.md) (seções 13 e 16).
+Referência: [`docs/agente/spec-rag.md`](./spec-rag.md) (seções 13 e 16).
 
 | Critério | Requisito | Arquivo e nome exato do(s) teste(s) que o cobrem | Status |
 |---|---|---|---|
