@@ -1,0 +1,162 @@
+{
+  "versao": 1,
+  "descricao": "Corpus fixo e perguntas para medir a recuperação do RAG do IFConnect. Documentos com publico=false são armadilhas: nunca podem aparecer em nenhuma resposta.",
+  "categorias": ["Meteorologia", "Meio ambiente", "Robótica", "Cultura", "Educação", "Saúde", "Astronomia"],
+  "documentos": [
+    {
+      "chave": "A1", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Estação meteorológica com Arduino mede temperatura e umidade",
+      "resumo": "Projeto de feira de ciências registra o clima do pátio da escola.",
+      "conteudo": "O grupo usou um sensor DHT22 e uma placa Arduino Uno para medir temperatura e umidade do ar no pátio da escola. Os dados são gravados a cada dez minutos em um cartão SD e depois organizados em planilhas pelos alunos do terceiro ano. A estação ficou instalada no telhado do laboratório e já registrou a passagem de duas frentes frias.",
+      "tipoPublicacao": "noticia_escolar", "categoria": "Meteorologia", "tema": "cientifico",
+      "palavrasChave": "arduino, estação meteorológica, feira de ciências"
+    },
+    {
+      "chave": "A2", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Oficina de robótica educacional reúne alunos do ensino médio",
+      "resumo": "Turmas aprendem programação em blocos e montagem de robôs.",
+      "conteudo": "A oficina ensina programação em blocos e montagem de robôs seguidores de linha. Participam turmas do primeiro e do segundo ano, com encontros às quartas-feiras à tarde no laboratório. Ao final, os grupos disputam uma competição interna de percurso com obstáculos.",
+      "tipoPublicacao": "noticia_escolar", "categoria": "Robótica", "tema": "educacional",
+      "palavrasChave": "robótica, programação, oficina"
+    },
+    {
+      "chave": "A3", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Estudantes monitoram a qualidade da água do rio local",
+      "resumo": "Coletas em cinco pontos medem pH e turbidez do rio.",
+      "conteudo": "Estudantes coletaram amostras em cinco pontos do rio e mediram pH e turbidez. Os resultados indicaram aumento de turbidez após períodos de chuva forte, o que sugere carregamento de sedimentos das margens. A turma pretende repetir as coletas todo mês e divulgar os números para a comunidade.",
+      "tipoPublicacao": "artigo_cientifico", "categoria": "Meio ambiente", "tema": "cientifico",
+      "palavrasChave": "água, rio, pH, turbidez, monitoramento ambiental"
+    },
+    {
+      "chave": "A4", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Poema: Manhã na beira do rio",
+      "resumo": "Versos sobre o amanhecer à beira da água.",
+      "conteudo": "A neblina levanta devagar\ne o rio guarda o céu no colo.\nAs garças aprendem o silêncio\nantes de o sol chegar ao molhe.\n\nNa margem, o barco dorme\ne a manhã escreve seu nome na água.",
+      "tipoPublicacao": "poema", "categoria": "Cultura", "tema": "cultural",
+      "palavrasChave": "poesia, rio, manhã"
+    },
+    {
+      "chave": "A5", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Feira de ciências abre inscrições para estudantes",
+      "resumo": "Grupos podem inscrever projetos até o fim do mês.",
+      "conteudo": "As inscrições para a feira de ciências seguem abertas até o fim do mês. Podem participar grupos de até quatro estudantes, com orientação de um professor. Os projetos serão apresentados no ginásio e avaliados por uma banca de professores e pesquisadores convidados.",
+      "tipoPublicacao": "noticia_escolar", "categoria": "Educação", "tema": "educacional",
+      "palavrasChave": "feira de ciências, inscrições, projetos"
+    },
+    {
+      "chave": "A6", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Pesquisa sobre alimentação saudável na cantina da escola",
+      "resumo": "Estudantes opinam sobre os lanches vendidos na cantina.",
+      "conteudo": "A pesquisa ouviu duzentos estudantes sobre os lanches da cantina. A maioria pediu mais frutas e opções sem açúcar adicionado. A direção estuda incluir uma bancada de frutas e reduzir a venda de refrigerantes.",
+      "tipoPublicacao": "noticia_escolar", "categoria": "Saúde", "tema": "comunitario",
+      "palavrasChave": "alimentação, cantina, pesquisa"
+    },
+    {
+      "chave": "A7", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Como funciona a compostagem na horta escolar",
+      "resumo": "A horta aproveita restos de alimentos da cantina para produzir adubo.",
+      "conteudo": "A horta da escola produz hortaliças que abastecem a merenda e, desde o ano passado, os restos de alimentos da cantina passaram a ser aproveitados na compostagem. Os estudantes do primeiro ano ficaram responsáveis por separar cascas, folhas e borra de café, enquanto a turma do segundo ano cuida do monitoramento semanal. A leira fica no fundo da horta, em um canteiro de madeira com cerca de um metro e meio de comprimento, protegido do sol forte por uma tela.\n\nO processo começa com camadas alternadas de material rico em nitrogênio, como cascas de frutas e legumes, e material rico em carbono, como folhas secas e serragem. Essa alternância é o que mantém a decomposição equilibrada e rende um composto escuro e fofo em cerca de três meses.\n\nPara acelerar a decomposição, a equipe revolve a leira a cada duas semanas e mantém a umidade parecida com a de uma esponja torcida. Uma regra prática é cobrir sempre os restos de comida recém-colocados com uma camada de folhas secas, o que evita mau cheiro e a presença de moscas. Quando o composto fica pronto, ele é peneirado e usado nos canteiros da própria horta.",
+      "tipoPublicacao": "artigo_cientifico", "categoria": "Meio ambiente", "tema": "cientifico",
+      "palavrasChave": "compostagem, horta, adubo, sustentabilidade"
+    },
+    {
+      "chave": "A8", "tipo": "artigo", "status": "publicado", "publico": true,
+      "titulo": "Clube de astronomia observa a Lua com telescópio",
+      "resumo": "Encontros semanais abertos à comunidade.",
+      "conteudo": "O clube se reúne às sextas-feiras à noite no pátio para observar a Lua e os planetas. O telescópio refletor foi doado por um ex-aluno. Os encontros são abertos à comunidade e não exigem inscrição.",
+      "tipoPublicacao": "noticia_escolar", "categoria": "Astronomia", "tema": "cientifico",
+      "palavrasChave": "astronomia, telescópio, clube"
+    },
+    {
+      "chave": "C1", "tipo": "campanha", "status": "ativa", "publico": true,
+      "titulo": "Kit de sensores de pH e turbidez para o rio",
+      "descricao": "Arrecadação para comprar sensores de pH e turbidez e um medidor de condutividade para o projeto de monitoramento da água do rio. A meta cobre também frascos de coleta e luvas.",
+      "categoria": "Meio ambiente", "tema": "cientifico", "palavrasChave": "sensores, água, monitoramento",
+      "metaFinanceira": 800, "valorArrecadado": 150
+    },
+    {
+      "chave": "C2", "tipo": "campanha", "status": "ativa", "publico": true,
+      "titulo": "Impressora 3D para o laboratório de robótica",
+      "descricao": "Queremos adquirir uma impressora 3D para produzir peças de robôs, suportes de sensores e protótipos. Hoje as peças são improvisadas com material reciclado, o que limita os testes.",
+      "categoria": "Robótica", "tema": "educacional", "palavrasChave": "impressora 3D, robótica, protótipos",
+      "metaFinanceira": 2500, "valorArrecadado": 400
+    },
+    {
+      "chave": "C3", "tipo": "campanha", "status": "financiada", "publico": true,
+      "titulo": "Livros para a biblioteca comunitária do bairro",
+      "descricao": "Campanha concluída: arrecadamos o valor necessário para comprar livros infantis e de ciências para a biblioteca do bairro.",
+      "categoria": "Educação", "tema": "comunitario", "palavrasChave": "livros, biblioteca, leitura",
+      "metaFinanceira": 500, "valorArrecadado": 500
+    },
+    {
+      "chave": "C4", "tipo": "campanha", "status": "ativa", "publico": true,
+      "titulo": "Instrumentos musicais para a banda da escola",
+      "descricao": "Compra de instrumentos de sopro e percussão para reativar a banda da escola, parada por falta de equipamentos.",
+      "categoria": "Cultura", "tema": "cultural", "palavrasChave": "música, banda, instrumentos",
+      "metaFinanceira": 3000, "valorArrecadado": 600
+    },
+    {
+      "chave": "N1", "tipo": "artigo", "status": "em_revisao", "publico": false,
+      "titulo": "Rascunho sobre drone agrícola na escola",
+      "resumo": "Texto ainda em revisão sobre um drone para mapear plantações.",
+      "conteudo": "O grupo testou um drone agrícola para mapear plantações e medir a saúde das folhas por imagens aéreas. O texto ainda está em revisão.",
+      "tipoPublicacao": "noticia_escolar", "categoria": "Robótica", "tema": "cientifico",
+      "palavrasChave": "drone, agricultura"
+    },
+    {
+      "chave": "N2", "tipo": "artigo", "status": "recusado", "publico": false,
+      "titulo": "Previsão do tempo com Arduino e aprendizado de máquina",
+      "resumo": "Texto recusado sobre previsão do tempo usando Arduino.",
+      "conteudo": "Este texto propõe prever a chuva usando um Arduino e um modelo de aprendizado de máquina treinado com dados da estação meteorológica. A publicação foi recusada pela moderação.",
+      "tipoPublicacao": "artigo_cientifico", "categoria": "Meteorologia", "tema": "cientifico",
+      "palavrasChave": "previsão do tempo, arduino, aprendizado de máquina"
+    },
+    {
+      "chave": "N3", "tipo": "campanha", "status": "em_analise", "publico": false,
+      "titulo": "Telescópio novo para o clube de astronomia",
+      "descricao": "Campanha aguardando análise para comprar um telescópio maior para o clube de astronomia.",
+      "categoria": "Astronomia", "tema": "cientifico", "palavrasChave": "telescópio, astronomia",
+      "metaFinanceira": 4000, "valorArrecadado": 0
+    },
+    {
+      "chave": "N4", "tipo": "campanha", "status": "encerrada", "publico": false,
+      "titulo": "Horta vertical para a cantina",
+      "descricao": "Campanha encerrada sem aprovação para montar uma horta vertical ao lado da cantina.",
+      "categoria": "Meio ambiente", "tema": "comunitario", "palavrasChave": "horta vertical, cantina",
+      "metaFinanceira": 900, "valorArrecadado": 0
+    }
+  ],
+  "perguntas": [
+    { "id": "Q01", "grupo": "lexical", "pergunta": "Quais projetos usam Arduino para medir o clima?", "relevantes": ["A1"] },
+    { "id": "Q02", "grupo": "parafrase", "pergunta": "Existe alguma iniciativa que acompanha o clima da escola?", "relevantes": ["A1"] },
+    { "id": "Q03", "grupo": "corpo", "pergunta": "Onde ficam armazenados os dados da estação meteorológica?", "relevantes": ["A1"] },
+    { "id": "Q04", "grupo": "lexical", "pergunta": "Tem oficina de robótica?", "relevantes": ["A2"] },
+    { "id": "Q05", "grupo": "parafrase", "pergunta": "Quero que meu filho aprenda a programar e montar robôs", "relevantes": ["A2"] },
+    { "id": "Q06", "grupo": "corpo", "pergunta": "Em quais dias acontecem os encontros da oficina de robótica?", "relevantes": ["A2"] },
+    { "id": "Q07", "grupo": "lexical", "pergunta": "O que mostram as análises da água do rio?", "relevantes": ["A3"] },
+    { "id": "Q08", "grupo": "parafrase", "pergunta": "Os rios da região ficam mais sujos depois das chuvas?", "relevantes": ["A3"] },
+    { "id": "Q09", "grupo": "lexical", "pergunta": "Quero apoiar a compra de sensores", "relevantes": ["C1"] },
+    { "id": "Q10", "grupo": "parafrase", "pergunta": "Algum projeto precisa de equipamento para criar protótipos?", "relevantes": ["C2"] },
+    { "id": "Q11", "grupo": "lexical", "pergunta": "Há algum poema sobre o rio?", "relevantes": ["A4"] },
+    { "id": "Q12", "grupo": "parafrase", "pergunta": "Procuro versos sobre amanhecer e silêncio", "relevantes": ["A4"] },
+    { "id": "Q13", "grupo": "corpo", "pergunta": "Como evitar mau cheiro na compostagem?", "relevantes": ["A7"] },
+    { "id": "Q14", "grupo": "lexical", "pergunta": "Como me inscrevo na feira de ciências?", "relevantes": ["A5"] },
+    { "id": "Q15", "grupo": "corpo", "pergunta": "Quantos estudantes podem formar um grupo na feira?", "relevantes": ["A5"] },
+    { "id": "Q16", "grupo": "lexical", "pergunta": "Tem publicação sobre alimentação saudável?", "relevantes": ["A6"] },
+    { "id": "Q17", "grupo": "parafrase", "pergunta": "O que os alunos acham do lanche da escola?", "relevantes": ["A6"] },
+    { "id": "Q18", "grupo": "distrator", "pergunta": "O clube de astronomia exige inscrição?", "relevantes": ["A8"] },
+    { "id": "Q19", "grupo": "status", "pergunta": "Quais campanhas já atingiram a meta?", "relevantes": ["C3"] },
+    { "id": "Q20", "grupo": "negativa", "pergunta": "Quais são as regras do campeonato de futebol da escola?", "relevantes": [] },
+    { "id": "Q21", "grupo": "negativa", "pergunta": "Qual a receita de bolo de cenoura?", "relevantes": [] },
+    { "id": "Q22", "grupo": "isolamento", "pergunta": "Tem algo sobre drone agrícola?", "relevantes": [] },
+    { "id": "Q23", "grupo": "isolamento", "pergunta": "Existe texto sobre previsão do tempo com aprendizado de máquina?", "relevantes": [] },
+    { "id": "Q24", "grupo": "navegacao", "pergunta": "Como faço para publicar um projeto?", "relevantes": [], "navegacao": true },
+    { "id": "Q25", "grupo": "navegacao", "pergunta": "Como cadastro uma campanha de apoio?", "relevantes": [], "navegacao": true }
+  ],
+  "observacoes": [
+    "Grupos: lexical (palavras em comum), parafrase (pouca sobreposição de palavras), corpo (resposta só no texto interno), distrator (palavra comum a vários documentos), status (depende do status do projeto), negativa (nada no corpus), isolamento (só existe em documento não público), navegacao (orientação, não busca).",
+    "Todos os documentos com publico=false são armadilhas: nenhuma pergunta pode retornar essas chaves, em nenhum modo.",
+    "Q13 depende do 2º trecho de A7: o termo 'cheiro' só aparece no terceiro parágrafo.",
+    "Q02, Q05, Q08, Q10 e Q12 dependem de similaridade semântica; com o provider mock (bag-of-words) elas podem falhar, e isso é esperado."
+  ]
+}
