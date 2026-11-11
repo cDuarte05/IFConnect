@@ -29,7 +29,6 @@ Article.belongsTo(Category, { foreignKey: { name: 'categoryId', allowNull: true 
 Category.hasMany(Campaign, { foreignKey: 'categoryId', as: 'campanhas' });
 Campaign.belongsTo(Category, { foreignKey: { name: 'categoryId', allowNull: true }, as: 'categoria' });
 
-module.exports = { sequelize, User, Category, Article, Campaign, Donation, AgentChunk };
 // Comentários: associados ao autor e vinculados a uma publicação (Article) ou projeto (Campaign)
 User.hasMany(Comment, { foreignKey: 'autorId', as: 'comentarios' });
 Comment.belongsTo(User, { foreignKey: 'autorId', as: 'autor' });
@@ -40,4 +39,4 @@ Comment.belongsTo(Article, { foreignKey: 'articleId', as: 'artigo' });
 Campaign.hasMany(Comment, { foreignKey: 'campaignId', as: 'comentarios', onDelete: 'CASCADE' });
 Comment.belongsTo(Campaign, { foreignKey: 'campaignId', as: 'campanha' });
 
-module.exports = { sequelize, User, Category, Article, Campaign, Donation, Comment };
+module.exports = { sequelize, User, Category, Article, Campaign, Donation, AgentChunk, Comment };
