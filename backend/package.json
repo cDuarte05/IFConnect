@@ -9,7 +9,8 @@
     "dev": "nodemon src/server.js",
     "seed": "node src/utils/seed.js",
     "test": "cross-env NODE_ENV=test jest --runInBand",
-    "agente:reindex": "node src/services/agente/ingest/reindex.js"
+    "agente:reindex": "node src/services/agente/ingest/reindex.js",
+    "agente:eval": "cross-env NODE_ENV=test node tests/agente/eval/runner.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
