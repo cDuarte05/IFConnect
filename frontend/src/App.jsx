@@ -35,8 +35,8 @@ export default function App() {
           <Route path="/registrar" element={<Register />} />
         </Routes>
       </main>
-      <AssistenteIA />
       <Footer />
+      <AssistenteIA />
     </div>
   );
 }
