@@ -129,6 +129,7 @@ async function recuperar(
     k = config.rag.topK,
     minScore = config.rag.minScore,
     store,
+    lexicalMaxDf = LEXICAL_MAX_DF,
   } = {}
 ) {
   // a) Ramo lexical (apenas banco/memória; não depende de provedor externo)
@@ -215,7 +216,7 @@ async function recuperar(
       } else {
         const temTermoEspecifico =
           Array.isArray(c.termosCasados) &&
-          c.termosCasados.some((t) => dfRatio(t) <= LEXICAL_MAX_DF);
+          c.termosCasados.some((t) => dfRatio(t) <= lexicalMaxDf);
         if (temTermoEspecifico) {
           passaLexical = true;
         } else if (!passaVetor) {
