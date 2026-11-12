@@ -1,4 +1,5 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'segredo-de-teste-nao-usar-em-producao';
+process.env.AGENTE_RAG_ENABLED = 'false';
 
 const { sequelize } = require('../src/models');
 

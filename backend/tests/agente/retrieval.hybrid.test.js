@@ -9,6 +9,8 @@ const {
   RRF_K,
   CANDIDATOS_POR_RAMO,
   MAX_CHUNKS_POR_DOCUMENTO,
+  LEXICAL_MAX_DF,
+  MIN_CHUNKS_PARA_DF,
   fundirRrf,
   recuperar,
 } = require('../../src/services/agente/retrieval/hybrid');
@@ -19,6 +21,8 @@ describe('fundirRrf (unitário)', () => {
     expect(RRF_K).toBe(60);
     expect(CANDIDATOS_POR_RAMO).toBe(20);
     expect(MAX_CHUNKS_POR_DOCUMENTO).toBe(2);
+    expect(LEXICAL_MAX_DF).toBe(0.25);
+    expect(MIN_CHUNKS_PARA_DF).toBe(8);
   });
 
   test('item presente nas duas listas supera item presente em uma só; valores exatos', () => {
@@ -430,6 +434,146 @@ describe('recuperar — recuperação híbrida com filtro de segurança (T10)', 
     expect(f1.cosseno).toBeCloseTo(0.90, 5);
     expect(f1.cobertura).toBe(1);
     expect(f1.trechos.map((t) => t.chunkIndex)).toEqual([0, 1]);
+  });
+});
+
+describe('Portão de relevância e descarte de termos onipresentes (T10-fix)', () => {
+  let provider;
+  let professor;
+
+  const novoArtigo = (extra = {}) =>
+    Article.create({
+      titulo: 'Artigo Escola',
+      resumo: 'Resumo',
+      conteudo: 'Conteúdo',
+      tipo: 'noticia_escolar',
+      status: 'publicado',
+      autorId: professor.usuario.id,
+      ...extra,
+    });
+
+  beforeAll(async () => {
+    provider = criarProvider();
+    professor = await criarProfessor({ nome: 'Prof Escola Teste', email: 'prof.escola.teste@ifsp.edu.br' });
+  });
+
+  beforeEach(async () => {
+    await AgentChunk.destroy({ where: {} });
+    invalidarIndice();
+    limparCache();
+  });
+
+  test('(a) 10 chunks com "escola" em 8 e "futebol" em nenhum: "campeonato de futebol da escola" -> fontes []', async () => {
+    for (let i = 1; i <= 8; i++) {
+      const art = await novoArtigo({ titulo: `Artigo Escola ${i}` });
+      await semearChunk({
+        sourceId: art.id,
+        texto: `Título: Artigo Escola ${i}\nConteúdo geral da escola sobre projetos ${i}.`,
+        provider,
+      });
+    }
+    for (let i = 9; i <= 10; i++) {
+      const art = await novoArtigo({ titulo: `Artigo Outro ${i}` });
+      await semearChunk({
+        sourceId: art.id,
+        texto: `Título: Artigo Outro ${i}\nConteúdo laboratorial sobre astronomia ${i}.`,
+        provider,
+      });
+    }
+
+    const { fontes, diagnostico } = await recuperar('campeonato de futebol da escola', {
+      provider,
+      minScore: null,
+    });
+
+    expect(fontes).toEqual([]);
+    expect(diagnostico.descartadosPorTermoGenerico).toBeGreaterThan(0);
+    expect(diagnostico.descartadosPorRelevancia).toBeGreaterThan(0);
+  });
+
+  test('(b) "robótica na escola" com "robotica" em 1 só chunk -> encontra', async () => {
+    let artComRobotica;
+    for (let i = 1; i <= 8; i++) {
+      const temRobotica = i === 1;
+      const art = await novoArtigo({ titulo: `Artigo Escola ${i}` });
+      if (temRobotica) artComRobotica = art;
+      await semearChunk({
+        sourceId: art.id,
+        texto: temRobotica
+          ? `Título: Artigo Escola ${i}\nOficina de robotica na escola para estudantes.`
+          : `Título: Artigo Escola ${i}\nConteúdo geral da escola número ${i}.`,
+        provider,
+      });
+    }
+    for (let i = 9; i <= 10; i++) {
+      const art = await novoArtigo({ titulo: `Artigo Neutro ${i}` });
+      await semearChunk({
+        sourceId: art.id,
+        texto: `Título: Artigo Neutro ${i}\nConteúdo neutro ${i}.`,
+        provider,
+      });
+    }
+
+    const { fontes, diagnostico } = await recuperar('robótica na escola', {
+      provider,
+      minScore: null,
+    });
+
+    expect(fontes.length).toBeGreaterThanOrEqual(1);
+    expect(fontes[0].id).toBe(artComRobotica.id);
+    expect(diagnostico.descartadosPorTermoGenerico).toBeGreaterThan(0);
+  });
+
+  test('(c) com minScore baixo, chunk só vetorial entra', async () => {
+    const art = await novoArtigo({ titulo: 'Artigo Sem Palavras Casadas' });
+    const cVetor = await semearChunk({
+      sourceId: art.id,
+      texto: 'Título: Artigo Sem Palavras Casadas\nTexto sem nenhum termo da busca.',
+      provider,
+    });
+
+    const storeFake = {
+      buscar: jest.fn().mockResolvedValue([
+        {
+          chunkId: cVetor.id,
+          sourceType: 'artigo',
+          sourceId: art.id,
+          chunkIndex: 0,
+          texto: cVetor.texto,
+          score: 0.40,
+        },
+      ]),
+    };
+
+    const { fontes } = await recuperar('pergunta totalmente diferente', {
+      provider,
+      minScore: 0.30,
+      store: storeFake,
+    });
+
+    expect(fontes).toHaveLength(1);
+    expect(fontes[0].id).toBe(art.id);
+  });
+
+  test('(d) índice com 3 chunks usa a regra antiga (cobertura > 0)', async () => {
+    const artigos = [];
+    for (let i = 1; i <= 3; i++) {
+      const art = await novoArtigo({ titulo: `Artigo Pequeno ${i}` });
+      artigos.push(art);
+      await semearChunk({
+        sourceId: art.id,
+        texto: `Título: Artigo Pequeno ${i}\nAtividades na escola turma ${i}.`,
+        provider,
+      });
+    }
+
+    const { fontes, diagnostico } = await recuperar('futebol na escola', {
+      provider,
+      minScore: null,
+    });
+
+    expect(fontes.length).toBe(3);
+    expect(diagnostico.descartadosPorTermoGenerico).toBe(0);
   });
 });
 

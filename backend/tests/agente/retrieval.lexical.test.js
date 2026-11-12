@@ -12,7 +12,7 @@ const {
   carregarIndice,
   invalidarIndice,
 } = require('../../src/services/agente/retrieval/indice');
-const { buscarLexical } = require('../../src/services/agente/retrieval/lexical');
+const { buscarLexical, dfRatio } = require('../../src/services/agente/retrieval/lexical');
 
 describe('Recuperação Lexical BM25 e Índice em Memória (T8)', () => {
   let provider;
@@ -190,5 +190,23 @@ describe('Recuperação Lexical BM25 e Índice em Memória (T8)', () => {
     const resultados = await buscarLexical(consulta);
     expect(resultados).toHaveLength(1);
     expect(resultados[0].cobertura).toBeCloseTo(0.5, 5);
+  });
+
+  test('9. termosCasados lista os tokens da consulta no chunk e dfRatio calcula a fração no índice (T10-fix)', async () => {
+    await semearChunk({ texto: 'Título: Escola A\nAtividades na escola.', provider });
+    await semearChunk({ texto: 'Título: Escola B\nMais escola.', provider });
+    await semearChunk({ texto: 'Título: Escola C\nClube de robotica na escola.', provider });
+    await semearChunk({ texto: 'Título: Laboratorio D\nExperimentos de fisica.', provider });
+
+    const resultados = await buscarLexical('robotica na escola');
+    const chunkRobotica = resultados.find((r) => r.texto.includes('robotica'));
+    expect(chunkRobotica).toBeDefined();
+    expect(chunkRobotica.termosCasados).toEqual(expect.arrayContaining(['robotica', 'escola']));
+
+    expect(dfRatio('escola')).toBeCloseTo(3 / 4, 5);
+    expect(dfRatio('robotica')).toBeCloseTo(1 / 4, 5);
+    expect(dfRatio('fisica')).toBeCloseTo(1 / 4, 5);
+    expect(dfRatio('inexistente')).toBe(0);
+    expect(dfRatio('')).toBe(0);
   });
 });

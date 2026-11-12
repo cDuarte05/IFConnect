@@ -2,7 +2,7 @@ const { Op } = require('sequelize');
 const { Article, Campaign, Category } = require('../../../models');
 const { getConfig } = require('../config');
 const { obterProvider } = require('../ingest/embedder');
-const { buscarLexical } = require('./lexical');
+const { buscarLexical, dfRatio, totalChunks } = require('./lexical');
 const { buscarVetorial } = require('./vector');
 
 /**
@@ -21,6 +21,8 @@ const { buscarVetorial } = require('./vector');
 const RRF_K = 60;
 const CANDIDATOS_POR_RAMO = 20;
 const MAX_CHUNKS_POR_DOCUMENTO = 2;
+const LEXICAL_MAX_DF = 0.25;
+const MIN_CHUNKS_PARA_DF = 8;
 
 const STATUS_PUBLICOS_CAMPANHA = ['ativa', 'financiada'];
 
@@ -157,6 +159,7 @@ async function recuperar(
       chunkIndex: item.chunkIndex,
       texto: item.texto,
       cobertura: item.cobertura,
+      termosCasados: item.termosCasados || [],
       cosseno: null,
     });
   }
@@ -172,6 +175,7 @@ async function recuperar(
         chunkIndex: item.chunkIndex,
         texto: item.texto,
         cobertura: null,
+        termosCasados: [],
         cosseno: item.score,
       });
     }
@@ -190,14 +194,36 @@ async function recuperar(
   );
   const descartadosPorStatus = totalAntesStatus - candidatos.length;
 
-  // e) Portão de relevância.
-  // Passa se o cosseno atingir minScore (quando calibrado) OU se houve correspondência lexical.
-  // Com minScore === null (ainda não calibrado), apenas a correspondência lexical qualifica;
-  // o ramo vetorial só reordena e nunca introduz candidatos por conta própria.
+  // e) Portão de relevância calibrado (T10-fix)
+  // Passa se o cosseno atingir minScore (quando calibrado) OU se houve correspondência lexical específica.
+  // Um candidato só satisfaz o critério lexical se algum token de termosCasados tiver dfRatio <= LEXICAL_MAX_DF.
+  // Se o índice tiver menos de MIN_CHUNKS_PARA_DF chunks, mantém a regra antiga (cobertura > 0).
+  const nChunksTotal = totalChunks();
   const totalAntesRelevancia = candidatos.length;
+  let descartadosPorTermoGenerico = 0;
+
   candidatos = candidatos.filter((c) => {
-    const passaVetor = minScore !== null && minScore !== undefined && c.cosseno !== null && c.cosseno >= minScore;
-    const passaLexical = c.cobertura !== null && c.cobertura > 0;
+    const passaVetor =
+      minScore !== null && minScore !== undefined && c.cosseno !== null && c.cosseno >= minScore;
+
+    const temCasamentoLexical = c.cobertura !== null && c.cobertura > 0;
+    let passaLexical = false;
+
+    if (temCasamentoLexical) {
+      if (nChunksTotal < MIN_CHUNKS_PARA_DF) {
+        passaLexical = true;
+      } else {
+        const temTermoEspecifico =
+          Array.isArray(c.termosCasados) &&
+          c.termosCasados.some((t) => dfRatio(t) <= LEXICAL_MAX_DF);
+        if (temTermoEspecifico) {
+          passaLexical = true;
+        } else if (!passaVetor) {
+          descartadosPorTermoGenerico += 1;
+        }
+      }
+    }
+
     return passaVetor || passaLexical;
   });
   const descartadosPorRelevancia = totalAntesRelevancia - candidatos.length;
@@ -257,6 +283,7 @@ async function recuperar(
       vetorialErro,
       descartadosPorStatus,
       descartadosPorRelevancia,
+      descartadosPorTermoGenerico,
     },
   };
 }
@@ -265,6 +292,8 @@ module.exports = {
   RRF_K,
   CANDIDATOS_POR_RAMO,
   MAX_CHUNKS_POR_DOCUMENTO,
+  LEXICAL_MAX_DF,
+  MIN_CHUNKS_PARA_DF,
   fundirRrf,
   recuperar,
 };
