@@ -8,7 +8,11 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/utils/seed.js",
-    "test": "cross-env NODE_ENV=test jest --runInBand"
+    "test": "cross-env NODE_ENV=test jest --runInBand",
+    "agente:reindex": "node src/services/agente/ingest/reindex.js",
+    "agente:eval": "cross-env NODE_ENV=test node tests/agente/eval/runner.js",
+    "agente:mutacao": "stryker run",
+    "agente:smoke": "node scripts/agente-smoke.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -24,6 +28,8 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^10.1.1",
+    "@stryker-mutator/jest-runner": "^10.1.1",
     "cross-env": "^7.0.3",
     "jest": "^29.7.0",
     "nodemon": "^3.1.4",

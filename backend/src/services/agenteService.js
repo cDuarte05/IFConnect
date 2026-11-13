@@ -1,5 +1,8 @@
 const { Op } = require('sequelize');
 const { Article, Campaign, Category } = require('../models');
+const { getConfig } = require('./agente/config');
+const { getLlmProvider } = require('./agente/providers/llm');
+const { consultarRag } = require('./agente/ragService');
 
 const STATUS_PUBLICOS_PROJETO = ['ativa', 'financiada'];
 
@@ -90,8 +93,12 @@ Regras:
 - Não fale sobre moderação interna, contas de usuários ou dados pessoais.
 - Orientação de navegação: publicações ficam na página inicial (/); projetos na "Vitrine científica" (/vitrine); para publicar é preciso entrar (/entrar) ou criar conta (/registrar) e usar "Publicar" (/publicar) ou "Cadastrar projeto" (/vitrine/nova). Publicações e projetos novos passam por análise antes de ficarem públicos.`;
 
-const mensagemUsuario = (pergunta, contexto) =>
-  `<contexto>${JSON.stringify(contexto)}</contexto>\n<pergunta>${pergunta}</pergunta>`;
+const mensagemUsuario = (pergunta, contexto) => {
+  const contextoJson = JSON.stringify(contexto)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e');
+  return `<contexto>${contextoJson}</contexto>\n<pergunta>${pergunta}</pergunta>`;
+};
 
 async function chamarAnthropic({ pergunta, contexto }) {
   const controller = new AbortController();
@@ -183,13 +190,20 @@ const PROVEDORES = { anthropic: chamarAnthropic, gemini: chamarGemini, groq: cha
 
 // Retorna texto do provedor ou null (sem chave, provedor desconhecido, timeout, erro).
 async function tentarProvedor(pergunta, contexto) {
-  const chamar = PROVEDORES[process.env.AGENTE_IA_PROVIDER];
-  if (!chamar || !process.env.AGENTE_IA_API_KEY) {
+  const config = getConfig();
+  const provider = getLlmProvider(config.provider);
+  if (!provider || !config.apiKey) {
     if (process.env.NODE_ENV !== 'test') console.warn('[agente] provedor/chave não configurados — usando modo busca');
     return null;
   }
   try {
-    return (await chamar({ pergunta, contexto })) || null;
+    return (
+      (await provider.generate({
+        system: SYSTEM_PROMPT,
+        user: mensagemUsuario(pergunta, contexto),
+        config,
+      })) || null
+    );
   } catch (err) {
     console.warn('[agente] provedor indisponível, usando fallback:', err.message);
     return null;
@@ -207,6 +221,15 @@ function respostaSemIA({ artigos, projetos, categorias }) {
 }
 
 async function responder(perguntaBruta) {
+  const config = getConfig();
+  if (config.rag.enabled) {
+    try {
+      return await consultarRag(perguntaBruta, { config });
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') console.warn('[agente] RAG falhou, usando fluxo legado:', err.message);
+    }
+  }
+
   const pergunta = perguntaBruta.replace(/[<>]/g, '').trim();
   const termos = extrairTermos(pergunta);
   const conteudo = await buscarConteudo(termos);
@@ -227,4 +250,4 @@ async function responder(perguntaBruta) {
   };
 }
 
-module.exports = { responder, extrairTermos };
+module.exports = { responder, extrairTermos, mensagemUsuario };

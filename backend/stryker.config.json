@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "jest",
+  "mutate": [
+    "src/services/agente/retrieval/hybrid.js",
+    "src/services/agente/generation/prompt.js",
+    "src/services/agente/generation/citacoes.js",
+    "src/services/agente/generation/intencao.js"
+  ],
+  "jest": {
+    "configFile": "jest.config.js",
+    "config": {
+      "testMatch": ["**/tests/agente/**/*.test.js"]
+    }
+  },
+  "coverageAnalysis": "perTest",
+  "concurrency": 2,
+  "reporters": ["clear-text", "progress", "html"],
+  "thresholds": {
+    "high": 80,
+    "low": 60,
+    "break": null
+  },
+  "htmlReporter": {
+    "fileName": "reports/mutation/index.html"
+  }
+}
+

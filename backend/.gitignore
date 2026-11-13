@@ -1,3 +1,6 @@
 node_modules/
 .env
 *.sqlite
+tests/agente/eval/ultimo-relatorio.json
+reports/
+.stryker-tmp/

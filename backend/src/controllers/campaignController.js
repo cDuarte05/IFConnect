@@ -1,6 +1,7 @@
 const { Campaign, User, Donation, Category } = require('../models');
 const asyncHandler = require('../utils/asyncHandler');
 const { Op } = require('sequelize');
+const { agendarIndexacao } = require('../services/agente/ingest/indexer');
 
 exports.listar = asyncHandler(async (req, res) => {
   const { categoryId, tema, busca, status } = req.query;
@@ -127,5 +128,6 @@ exports.moderar = asyncHandler(async (req, res) => {
   if (!campanha) return res.status(404).json({ erro: true, mensagem: 'Campanha não encontrada' });
   campanha.status = status;
   await campanha.save();
+  agendarIndexacao('campanha', campanha.id);
   res.json(campanha);
 });
