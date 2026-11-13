@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
 const controller = require('../controllers/campaignController');
+const commentController = require('../controllers/commentController');
 const { autenticar, autenticarOpcional, permitir } = require('../middleware/auth');
 const validar = require('../middleware/validate');
 
@@ -38,6 +39,24 @@ router.get('/', controller.listar);
 router.get('/minhas/campanhas', autenticar, controller.minhasCampanhas);
 router.get('/moderacao/pendentes', autenticar, permitir('professor_moderador'), controller.pendentes);
 router.get('/:id', autenticarOpcional, controller.obterPorId);
+
+// Comentários do projeto / campanha
+router.get('/:id/comentarios', commentController.listarPorCampanha);
+router.get('/:id/comentarios/stream', commentController.streamCampanha);
+router.post(
+  '/:id/comentarios',
+  autenticar,
+  [
+    body('conteudo')
+      .trim()
+      .notEmpty()
+      .withMessage('O comentário não pode ficar vazio')
+      .isLength({ min: 1, max: 2000 })
+      .withMessage('O comentário deve ter no máximo 2000 caracteres'),
+  ],
+  validar,
+  commentController.criarPorCampanha
+);
 
 router.post('/', autenticar, validacaoCampanha, validar, controller.criar);
 

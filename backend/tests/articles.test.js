@@ -77,7 +77,7 @@ describe('Publicações — edição e moderação', () => {
     const res = await request(app)
       .post('/api/artigos')
       .set('Authorization', `Bearer ${autorToken}`)
-      .send({ titulo: 'Original', resumo: 'Resumo original', conteudo: 'Conteúdo original', tipo: 'texto' });
+      .send({ titulo: 'Título Original', resumo: 'Resumo original', conteudo: 'Conteúdo original', tipo: 'texto' });
     artigoId = res.body.id;
   });
 
@@ -140,5 +140,50 @@ describe('Publicações — edição e moderação', () => {
       .set('Authorization', `Bearer ${professorToken}`);
     expect(comPermissao.status).toBe(200);
     expect(Array.isArray(comPermissao.body)).toBe(true);
+  });
+});
+
+describe('Publicações — exclusão', () => {
+  let autorToken;
+  let artigoId;
+
+  beforeAll(async () => {
+    const { token } = await registrarEstudante('estudante.exclusao@escola.edu.br');
+    autorToken = token;
+    const res = await request(app)
+      .post('/api/artigos')
+      .set('Authorization', `Bearer ${autorToken}`)
+      .send({ titulo: 'Publicação para excluir', resumo: 'Resumo', conteudo: 'Conteúdo', tipo: 'texto' });
+    artigoId = res.body.id;
+  });
+
+  test('exige autenticação para excluir', async () => {
+    const res = await request(app).delete(`/api/artigos/${artigoId}`);
+    expect(res.status).toBe(401);
+  });
+
+  test('outro usuário não pode excluir a publicação', async () => {
+    const { token: outroToken } = await registrarEstudante('estudante.exclusaointruso@escola.edu.br');
+    const res = await request(app)
+      .delete(`/api/artigos/${artigoId}`)
+      .set('Authorization', `Bearer ${outroToken}`);
+    expect(res.status).toBe(403);
+  });
+
+  test('retorna 404 para publicação inexistente', async () => {
+    const res = await request(app)
+      .delete('/api/artigos/00000000-0000-4000-8000-000000000000')
+      .set('Authorization', `Bearer ${autorToken}`);
+    expect(res.status).toBe(404);
+  });
+
+  test('autor exclui a própria publicação', async () => {
+    const res = await request(app)
+      .delete(`/api/artigos/${artigoId}`)
+      .set('Authorization', `Bearer ${autorToken}`);
+    expect(res.status).toBe(204);
+
+    const consulta = await request(app).get(`/api/artigos/${artigoId}`);
+    expect(consulta.status).toBe(404);
   });
 });

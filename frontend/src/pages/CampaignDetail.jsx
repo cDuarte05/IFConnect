@@ -4,6 +4,7 @@ import api from '../api/client';
 import FundingBar from '../components/FundingBar';
 import { useAuth } from '../context/AuthContext';
 import { TEMA_ROTULOS } from '../constants';
+import CommentsSection from '../components/CommentsSection';
 
 export default function CampaignDetail() {
   const { id } = useParams();
@@ -108,6 +109,8 @@ export default function CampaignDetail() {
           ))}
         </div>
       )}
+
+      <CommentsSection tipo="campanha" itemId={id} autorPostId={campanha.autorId} />
     </div>
   );
 }

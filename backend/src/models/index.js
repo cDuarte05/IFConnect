@@ -4,6 +4,7 @@ const Category = require('./Category');
 const Article = require('./Article');
 const Campaign = require('./Campaign');
 const Donation = require('./Donation');
+const Comment = require('./Comment');
 
 // Associações
 User.hasMany(Article, { foreignKey: 'autorId', as: 'artigos' });
@@ -27,4 +28,14 @@ Article.belongsTo(Category, { foreignKey: { name: 'categoryId', allowNull: true 
 Category.hasMany(Campaign, { foreignKey: 'categoryId', as: 'campanhas' });
 Campaign.belongsTo(Category, { foreignKey: { name: 'categoryId', allowNull: true }, as: 'categoria' });
 
-module.exports = { sequelize, User, Category, Article, Campaign, Donation };
+// Comentários: associados ao autor e vinculados a uma publicação (Article) ou projeto (Campaign)
+User.hasMany(Comment, { foreignKey: 'autorId', as: 'comentarios' });
+Comment.belongsTo(User, { foreignKey: 'autorId', as: 'autor' });
+
+Article.hasMany(Comment, { foreignKey: 'articleId', as: 'comentarios', onDelete: 'CASCADE' });
+Comment.belongsTo(Article, { foreignKey: 'articleId', as: 'artigo' });
+
+Campaign.hasMany(Comment, { foreignKey: 'campaignId', as: 'comentarios', onDelete: 'CASCADE' });
+Comment.belongsTo(Campaign, { foreignKey: 'campaignId', as: 'campanha' });
+
+module.exports = { sequelize, User, Category, Article, Campaign, Donation, Comment };

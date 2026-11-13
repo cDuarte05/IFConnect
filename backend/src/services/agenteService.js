@@ -150,7 +150,36 @@ async function chamarGemini({ pergunta, contexto }) {
   }
 }
 
-const PROVEDORES = { anthropic: chamarAnthropic, gemini: chamarGemini };
+async function chamarGroq({ pergunta, contexto }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Number(process.env.AGENTE_IA_TIMEOUT_MS) || 8000);
+  try {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${process.env.AGENTE_IA_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: process.env.AGENTE_IA_MODEL || 'llama-3.3-70b-versatile',
+        max_tokens: 500,
+        temperature: 0.3,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: mensagemUsuario(pergunta, contexto) },
+        ],
+      }),
+    });
+    if (!resp.ok) throw new Error(`Provedor respondeu ${resp.status}`);
+    const data = await resp.json();
+    return (data.choices?.[0]?.message?.content || '').trim();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const PROVEDORES = { anthropic: chamarAnthropic, gemini: chamarGemini, groq: chamarGroq };
 
 // Retorna texto do provedor ou null (sem chave, provedor desconhecido, timeout, erro).
 async function tentarProvedor(pergunta, contexto) {
