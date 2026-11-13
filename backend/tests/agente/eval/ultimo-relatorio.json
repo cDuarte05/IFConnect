@@ -1,0 +1,1050 @@
+{
+  "geradoEm": "2026-11-12T17:12:38.909Z",
+  "provider": {
+    "provider": "mock",
+    "model": "mock-embedding",
+    "dim": 64
+  },
+  "k": 4,
+  "isolamentoOk": true,
+  "ocorrenciasIsolamento": [],
+  "modos": {
+    "lexical": {
+      "k": 4,
+      "totalPerguntas": 19,
+      "recall": 1,
+      "recall1": 0.8947,
+      "recall3": 0.9474,
+      "recall4": 1,
+      "mrr": 0.9342,
+      "porGrupo": {
+        "lexical": {
+          "total": 7,
+          "recall1": 1,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 1
+        },
+        "parafrase": {
+          "total": 6,
+          "recall1": 0.8333,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 0.9167
+        },
+        "corpo": {
+          "total": 4,
+          "recall1": 1,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 1
+        },
+        "distrator": {
+          "total": 1,
+          "recall1": 1,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 1
+        },
+        "status": {
+          "total": 1,
+          "recall1": 0,
+          "recall3": 0,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 0.25
+        }
+      },
+      "vazamentosNaoPublicos": 16
+    },
+    "vetorial": {
+      "k": 4,
+      "totalPerguntas": 19,
+      "recall": 0.6316,
+      "recall1": 0.1579,
+      "recall3": 0.4737,
+      "recall4": 0.6316,
+      "mrr": 0.3465,
+      "porGrupo": {
+        "lexical": {
+          "total": 7,
+          "recall1": 0.2857,
+          "recall3": 0.4286,
+          "recall4": 0.7143,
+          "recall": 0.7143,
+          "mrr": 0.4286
+        },
+        "parafrase": {
+          "total": 6,
+          "recall1": 0.1667,
+          "recall3": 0.3333,
+          "recall4": 0.3333,
+          "recall": 0.3333,
+          "mrr": 0.2222
+        },
+        "corpo": {
+          "total": 4,
+          "recall1": 0,
+          "recall3": 0.75,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 0.4375
+        },
+        "distrator": {
+          "total": 1,
+          "recall1": 0,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 0.5
+        },
+        "status": {
+          "total": 1,
+          "recall1": 0,
+          "recall3": 0,
+          "recall4": 0,
+          "recall": 0,
+          "mrr": 0
+        }
+      },
+      "vazamentosNaoPublicos": 20
+    },
+    "hibrido": {
+      "k": 4,
+      "totalPerguntas": 19,
+      "recall": 1,
+      "recall1": 0.7895,
+      "recall3": 1,
+      "recall4": 1,
+      "mrr": 0.8772,
+      "porGrupo": {
+        "lexical": {
+          "total": 7,
+          "recall1": 0.7143,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 0.8333
+        },
+        "parafrase": {
+          "total": 6,
+          "recall1": 0.6667,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 0.8056
+        },
+        "corpo": {
+          "total": 4,
+          "recall1": 1,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 1
+        },
+        "distrator": {
+          "total": 1,
+          "recall1": 1,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 1
+        },
+        "status": {
+          "total": 1,
+          "recall1": 1,
+          "recall3": 1,
+          "recall4": 1,
+          "recall": 1,
+          "mrr": 1
+        }
+      },
+      "vazamentosNaoPublicos": 0
+    }
+  },
+  "cossenos": {
+    "porGrupo": {
+      "lexical": {
+        "cosRelevante": {
+          "min": 0.2406,
+          "med": 0.4119,
+          "max": 0.4889
+        },
+        "cosMelhorNaoRelevante": {
+          "min": 0.1796,
+          "med": 0.4252,
+          "max": 0.5787
+        }
+      },
+      "parafrase": {
+        "cosRelevante": {
+          "min": 0.1753,
+          "med": 0.3712,
+          "max": 0.5379
+        },
+        "cosMelhorNaoRelevante": {
+          "min": 0.2376,
+          "med": 0.4556,
+          "max": 0.6427
+        }
+      },
+      "corpo": {
+        "cosRelevante": {
+          "min": 0.2606,
+          "med": 0.381,
+          "max": 0.4196
+        },
+        "cosMelhorNaoRelevante": {
+          "min": 0.288,
+          "med": 0.3719,
+          "max": 0.4183
+        }
+      },
+      "distrator": {
+        "cosRelevante": {
+          "min": 0.5472,
+          "med": 0.5472,
+          "max": 0.5472
+        },
+        "cosMelhorNaoRelevante": {
+          "min": 0.5,
+          "med": 0.5,
+          "max": 0.5
+        }
+      },
+      "status": {
+        "cosRelevante": {
+          "min": 0.1938,
+          "med": 0.1938,
+          "max": 0.1938
+        },
+        "cosMelhorNaoRelevante": {
+          "min": 0.4209,
+          "med": 0.4209,
+          "max": 0.4209
+        }
+      },
+      "negativa": {
+        "cosTopPublico": {
+          "min": 0.5759,
+          "med": 0.608,
+          "max": 0.6401
+        }
+      },
+      "isolamento": {
+        "cosTopPublico": {
+          "min": 0.2811,
+          "med": 0.443,
+          "max": 0.6049
+        }
+      },
+      "navegacao": {
+        "cosTopPublico": {
+          "min": 0.2717,
+          "med": 0.3597,
+          "max": 0.4476
+        }
+      }
+    },
+    "minCosRelevante": 0.17526187375187874,
+    "maxCosTopPublicoNegativas": 0.6400757388569052,
+    "margem": -0.4648,
+    "separavel": false,
+    "limiarSugeridoMargem": null
+  },
+  "negativasEisolamento": {
+    "vazioNegativas": 0.5,
+    "vazioIsolamento": 1,
+    "vazioCombinado": 0.75
+  },
+  "varreduraLimiar": [
+    {
+      "limiar": 0.3,
+      "recall": 0.5789,
+      "vazioNegativas": 0,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.35,
+      "recall": 0.5789,
+      "vazioNegativas": 0,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.4,
+      "recall": 0.4211,
+      "vazioNegativas": 0,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.45,
+      "recall": 0.2632,
+      "vazioNegativas": 0,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.5,
+      "recall": 0.1053,
+      "vazioNegativas": 0,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.55,
+      "recall": 0,
+      "vazioNegativas": 0,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.6,
+      "recall": 0,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 0.5,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.65,
+      "recall": 0,
+      "vazioNegativas": 1,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.7,
+      "recall": 0,
+      "vazioNegativas": 1,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.75,
+      "recall": 0,
+      "vazioNegativas": 1,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "limiar": 0.8,
+      "recall": 0,
+      "vazioNegativas": 1,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    }
+  ],
+  "varreduraLexicalDf": [
+    {
+      "dfMax": 0.1,
+      "recall": 0.5789,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.15,
+      "recall": 0.7895,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.2,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.25,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.3,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.35,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.4,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.45,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.5,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.55,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    },
+    {
+      "dfMax": 0.6,
+      "recall": 1,
+      "vazioNegativas": 0.5,
+      "vazioIsolamento": 1,
+      "isolamentoOk": true
+    }
+  ],
+  "recomendacao": {
+    "limiar": 0.65,
+    "lexicalMaxDf": null,
+    "texto": "Limiar vetorial: 0.65 (vazioNeg=1.00, recall=0.0000), classes sobrepostas: cosseno sozinho não separa"
+  },
+  "navegacao": {
+    "total": 25,
+    "acertos": 25,
+    "falsosPositivos": [],
+    "falsosNegativos": []
+  },
+  "detalhePorPergunta": {
+    "Q01": {
+      "grupo": "lexical",
+      "relevantes": [
+        "A1"
+      ],
+      "lexical": [
+        "A1",
+        "N2",
+        "N1"
+      ],
+      "vetorial": [
+        "N1",
+        "N3",
+        "A4",
+        "A5"
+      ],
+      "hibrido": [
+        "A1"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.2406,
+        "cosMelhorNaoRelevante": 0.3611
+      }
+    },
+    "Q02": {
+      "grupo": "parafrase",
+      "relevantes": [
+        "A1"
+      ],
+      "lexical": [
+        "A1",
+        "C4",
+        "N1",
+        "A6"
+      ],
+      "vetorial": [
+        "C1",
+        "A4",
+        "A1",
+        "A3"
+      ],
+      "hibrido": [
+        "A1"
+      ],
+      "cossenos": {
+        "grupo": "parafrase",
+        "cosRelevante": 0.4536,
+        "cosMelhorNaoRelevante": 0.4916
+      }
+    },
+    "Q03": {
+      "grupo": "corpo",
+      "relevantes": [
+        "A1"
+      ],
+      "lexical": [
+        "A1",
+        "N2"
+      ],
+      "vetorial": [
+        "N3",
+        "N2",
+        "A5",
+        "A1"
+      ],
+      "hibrido": [
+        "A1"
+      ],
+      "cossenos": {
+        "grupo": "corpo",
+        "cosRelevante": 0.2606,
+        "cosMelhorNaoRelevante": 0.288
+      }
+    },
+    "Q04": {
+      "grupo": "lexical",
+      "relevantes": [
+        "A2"
+      ],
+      "lexical": [
+        "A2",
+        "C2",
+        "N1"
+      ],
+      "vetorial": [
+        "A2",
+        "C2",
+        "A6",
+        "A7"
+      ],
+      "hibrido": [
+        "A2",
+        "C2"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.4889,
+        "cosMelhorNaoRelevante": 0.4252
+      }
+    },
+    "Q05": {
+      "grupo": "parafrase",
+      "relevantes": [
+        "A2"
+      ],
+      "lexical": [
+        "N4",
+        "A2",
+        "C2"
+      ],
+      "vetorial": [
+        "A3",
+        "A7",
+        "A1",
+        "C1"
+      ],
+      "hibrido": [
+        "A2",
+        "C2"
+      ],
+      "cossenos": {
+        "grupo": "parafrase",
+        "cosRelevante": 0.4638,
+        "cosMelhorNaoRelevante": 0.5358
+      }
+    },
+    "Q06": {
+      "grupo": "corpo",
+      "relevantes": [
+        "A2"
+      ],
+      "lexical": [
+        "A2",
+        "C2",
+        "A8",
+        "N1"
+      ],
+      "vetorial": [
+        "N2",
+        "A2",
+        "C2",
+        "A1"
+      ],
+      "hibrido": [
+        "A2",
+        "C2",
+        "A8"
+      ],
+      "cossenos": {
+        "grupo": "corpo",
+        "cosRelevante": 0.4196,
+        "cosMelhorNaoRelevante": 0.4183
+      }
+    },
+    "Q07": {
+      "grupo": "lexical",
+      "relevantes": [
+        "A3"
+      ],
+      "lexical": [
+        "A3",
+        "C1",
+        "A4"
+      ],
+      "vetorial": [
+        "A4",
+        "C1",
+        "N2",
+        "A3"
+      ],
+      "hibrido": [
+        "A4",
+        "C1",
+        "A3"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.458,
+        "cosMelhorNaoRelevante": 0.5685
+      }
+    },
+    "Q08": {
+      "grupo": "parafrase",
+      "relevantes": [
+        "A3"
+      ],
+      "lexical": [
+        "A3",
+        "A4",
+        "C1",
+        "A1"
+      ],
+      "vetorial": [
+        "N2",
+        "A5",
+        "A6",
+        "A7"
+      ],
+      "hibrido": [
+        "C1",
+        "A3",
+        "A1",
+        "A4"
+      ],
+      "cossenos": {
+        "grupo": "parafrase",
+        "cosRelevante": 0.1753,
+        "cosMelhorNaoRelevante": 0.2376
+      }
+    },
+    "Q09": {
+      "grupo": "lexical",
+      "relevantes": [
+        "C1"
+      ],
+      "lexical": [
+        "C1",
+        "C4",
+        "C2",
+        "A1"
+      ],
+      "vetorial": [
+        "A7",
+        "A3",
+        "C4",
+        "C1"
+      ],
+      "hibrido": [
+        "C1",
+        "C4",
+        "C2",
+        "A1"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.4119,
+        "cosMelhorNaoRelevante": 0.4866
+      }
+    },
+    "Q10": {
+      "grupo": "parafrase",
+      "relevantes": [
+        "C2"
+      ],
+      "lexical": [
+        "C2",
+        "C4"
+      ],
+      "vetorial": [
+        "C2",
+        "A2",
+        "C1",
+        "A3"
+      ],
+      "hibrido": [
+        "C2",
+        "C4"
+      ],
+      "cossenos": {
+        "grupo": "parafrase",
+        "cosRelevante": 0.5379,
+        "cosMelhorNaoRelevante": 0.4196
+      }
+    },
+    "Q11": {
+      "grupo": "lexical",
+      "relevantes": [
+        "A4"
+      ],
+      "lexical": [
+        "A4",
+        "A3",
+        "C1"
+      ],
+      "vetorial": [
+        "N1",
+        "A4",
+        "N2",
+        "A1"
+      ],
+      "hibrido": [
+        "A4",
+        "C1",
+        "A3"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.3611,
+        "cosMelhorNaoRelevante": 0.2606
+      }
+    },
+    "Q12": {
+      "grupo": "parafrase",
+      "relevantes": [
+        "A4"
+      ],
+      "lexical": [
+        "A4"
+      ],
+      "vetorial": [
+        "N2",
+        "A5",
+        "A1",
+        "A7"
+      ],
+      "hibrido": [
+        "A4"
+      ],
+      "cossenos": {
+        "grupo": "parafrase",
+        "cosRelevante": 0.2887,
+        "cosMelhorNaoRelevante": 0.3326
+      }
+    },
+    "Q13": {
+      "grupo": "corpo",
+      "relevantes": [
+        "A7"
+      ],
+      "lexical": [
+        "A7"
+      ],
+      "vetorial": [
+        "A8",
+        "A7",
+        "A6",
+        "A4"
+      ],
+      "hibrido": [
+        "A7"
+      ],
+      "cossenos": {
+        "grupo": "corpo",
+        "cosRelevante": 0.354,
+        "cosMelhorNaoRelevante": 0.383
+      }
+    },
+    "Q14": {
+      "grupo": "lexical",
+      "relevantes": [
+        "A5"
+      ],
+      "lexical": [
+        "A5",
+        "A1",
+        "C3",
+        "A8"
+      ],
+      "vetorial": [
+        "A1",
+        "A7",
+        "A3",
+        "A8"
+      ],
+      "hibrido": [
+        "A1",
+        "A5",
+        "A8",
+        "A2"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.4875,
+        "cosMelhorNaoRelevante": 0.5787
+      }
+    },
+    "Q15": {
+      "grupo": "corpo",
+      "relevantes": [
+        "A5"
+      ],
+      "lexical": [
+        "A5",
+        "A1",
+        "A2",
+        "A3"
+      ],
+      "vetorial": [
+        "N1",
+        "A5",
+        "N2",
+        "A1"
+      ],
+      "hibrido": [
+        "A5",
+        "A1",
+        "A3",
+        "A7"
+      ],
+      "cossenos": {
+        "grupo": "corpo",
+        "cosRelevante": 0.408,
+        "cosMelhorNaoRelevante": 0.3609
+      }
+    },
+    "Q16": {
+      "grupo": "lexical",
+      "relevantes": [
+        "A6"
+      ],
+      "lexical": [
+        "A6"
+      ],
+      "vetorial": [
+        "A6",
+        "N2",
+        "A5",
+        "C4"
+      ],
+      "hibrido": [
+        "A6"
+      ],
+      "cossenos": {
+        "grupo": "lexical",
+        "cosRelevante": 0.3597,
+        "cosMelhorNaoRelevante": 0.1796
+      }
+    },
+    "Q17": {
+      "grupo": "parafrase",
+      "relevantes": [
+        "A6"
+      ],
+      "lexical": [
+        "A6",
+        "A1",
+        "A2",
+        "C4"
+      ],
+      "vetorial": [
+        "A1",
+        "N2",
+        "A4",
+        "A5"
+      ],
+      "hibrido": [
+        "A1",
+        "A2",
+        "A6",
+        "A8"
+      ],
+      "cossenos": {
+        "grupo": "parafrase",
+        "cosRelevante": 0.2644,
+        "cosMelhorNaoRelevante": 0.6427
+      }
+    },
+    "Q18": {
+      "grupo": "distrator",
+      "relevantes": [
+        "A8"
+      ],
+      "lexical": [
+        "A8",
+        "N3",
+        "A5"
+      ],
+      "vetorial": [
+        "N3",
+        "A8",
+        "A4",
+        "C2"
+      ],
+      "hibrido": [
+        "A8",
+        "A5"
+      ],
+      "cossenos": {
+        "grupo": "distrator",
+        "cosRelevante": 0.5472,
+        "cosMelhorNaoRelevante": 0.5
+      }
+    },
+    "Q19": {
+      "grupo": "status",
+      "relevantes": [
+        "C3"
+      ],
+      "lexical": [
+        "C1",
+        "N4",
+        "N3",
+        "C3"
+      ],
+      "vetorial": [
+        "A6",
+        "A7",
+        "A8",
+        "A1"
+      ],
+      "hibrido": [
+        "C3",
+        "C1"
+      ],
+      "cossenos": {
+        "grupo": "status",
+        "cosRelevante": 0.1938,
+        "cosMelhorNaoRelevante": 0.4209
+      }
+    },
+    "Q20": {
+      "grupo": "negativa",
+      "relevantes": [],
+      "lexical": [
+        "A7",
+        "C4",
+        "N1",
+        "A6"
+      ],
+      "vetorial": [
+        "A1",
+        "A3",
+        "C4",
+        "C1"
+      ],
+      "hibrido": [
+        "A7"
+      ],
+      "cossenos": {
+        "grupo": "negativa",
+        "cosTopPublico": 0.5759
+      }
+    },
+    "Q21": {
+      "grupo": "negativa",
+      "relevantes": [],
+      "lexical": [],
+      "vetorial": [
+        "A7",
+        "A3",
+        "A8",
+        "A1"
+      ],
+      "hibrido": [],
+      "cossenos": {
+        "grupo": "negativa",
+        "cosTopPublico": 0.6401
+      }
+    },
+    "Q22": {
+      "grupo": "isolamento",
+      "relevantes": [],
+      "lexical": [
+        "N1"
+      ],
+      "vetorial": [
+        "N1",
+        "A4",
+        "N2",
+        "A6"
+      ],
+      "hibrido": [],
+      "cossenos": {
+        "grupo": "isolamento",
+        "cosTopPublico": 0.2811
+      }
+    },
+    "Q23": {
+      "grupo": "isolamento",
+      "relevantes": [],
+      "lexical": [
+        "N2",
+        "N1"
+      ],
+      "vetorial": [
+        "N2",
+        "A2",
+        "A5",
+        "A3"
+      ],
+      "hibrido": [],
+      "cossenos": {
+        "grupo": "isolamento",
+        "cosTopPublico": 0.6049
+      }
+    },
+    "Q24": {
+      "grupo": "navegacao",
+      "relevantes": [],
+      "lexical": [],
+      "vetorial": [
+        "N1",
+        "A7",
+        "N2",
+        "A5"
+      ],
+      "hibrido": [],
+      "cossenos": {
+        "grupo": "navegacao",
+        "cosTopPublico": 0.2717
+      }
+    },
+    "Q25": {
+      "grupo": "navegacao",
+      "relevantes": [],
+      "lexical": [
+        "N4",
+        "N3",
+        "C3"
+      ],
+      "vetorial": [
+        "A7",
+        "A1",
+        "A5",
+        "A2"
+      ],
+      "hibrido": [
+        "C3"
+      ],
+      "cossenos": {
+        "grupo": "navegacao",
+        "cosTopPublico": 0.4476
+      }
+    }
+  }
+}
