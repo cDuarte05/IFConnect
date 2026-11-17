@@ -39,4 +39,4 @@ Comment.belongsTo(Article, { foreignKey: 'articleId', as: 'artigo' });
 Campaign.hasMany(Comment, { foreignKey: 'campaignId', as: 'comentarios', onDelete: 'CASCADE' });
 Comment.belongsTo(Campaign, { foreignKey: 'campaignId', as: 'campanha' });
 
-module.exports = { sequelize, User, Category, Article, Campaign, Donation, AgentChunk, Comment };
+module.exports = { sequelize, ambiente: sequelize.ambiente, User, Category, Article, Campaign, Donation, AgentChunk, Comment };

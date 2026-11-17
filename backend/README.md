@@ -5,6 +5,8 @@ poemas, projetos), campanhas da vitrine de projetos e apoios/doações.
 
 ## Rodando localmente
 
+> **Atenção:** O comando `npm run seed` recria o banco de dados do zero (`sync({ force: true })`), apagando todas as tabelas, inclusive o índice do assistente (`agent_chunks`).
+
 ```bash
 cd backend
 npm install
@@ -123,6 +125,29 @@ login, autorização por perfil, publicação/edição/moderação de conteúdo,
 doações e todo o módulo do agente/RAG (recuperação, prompt, citações, indexação,
 rotas, avaliação offline e ciclo E2E via HTTP). A matriz de cobertura dos critérios
 está em [`docs/agente/cobertura-ca.md`](../docs/agente/cobertura-ca.md).
+
+## Banco na nuvem (Supabase)
+
+O backend do IFConnect pode ser conectado a uma instância PostgreSQL no **Supabase** de forma simples, mantendo o SQLite como padrão para testes e desenvolvimento local:
+
+1. **Criar projeto**: crie um novo projeto no [Supabase](https://supabase.com) (recomenda-se selecionar uma região próxima, como São Paulo `sa-east-1`).
+2. **Session pooler**: vá em *Project Settings > Database > Connection Pooling* e copie a string de conexão do **Session pooler** (porta `5432`).
+3. **Configurar `.env`**: adicione a variável `DATABASE_URL` no seu arquivo `backend/.env` (nunca versione este arquivo no Git):
+   ```env
+   DATABASE_URL=postgresql://postgres.[project-ref]:[sua-senha]@aws-0-sa-east-1.pooler.supabase.com:5432/postgres
+   ```
+4. **Criar tabelas**: inicialize o schema do banco executando:
+   ```bash
+   npm run db:init
+   ```
+5. **Habilitar RLS**: abra o *SQL Editor* no painel do Supabase, copie o conteúdo de [`docs/banco/rls.sql`](../docs/banco/rls.sql) e execute-o para ativar o Row Level Security nas tabelas públicas.
+6. **Desligar Data API**: em *Project Settings > API*, desabilite a **Data API (PostgREST)** para que o banco seja acessado unicamente pela API Node.js autenticada do backend.
+7. **Verificar integridade**: execute a qualquer momento:
+   ```bash
+   npm run db:check
+   ```
+
+> **Aviso:** Projetos no plano gratuito do Supabase entram em pausa automaticamente após 7 dias de inatividade. Caso ocorra erro de conexão após um período inativo, acesse o painel do Supabase e clique em *Restore project*.
 
 ## Possível evolução para nuvem (AWS)
 

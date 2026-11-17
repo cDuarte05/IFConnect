@@ -8,6 +8,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node src/utils/seed.js",
+    "db:init": "node scripts/db-init.js",
+    "db:check": "node scripts/db-check.js",
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "agente:reindex": "node src/services/agente/ingest/reindex.js",
     "agente:eval": "cross-env NODE_ENV=test node tests/agente/eval/runner.js",
@@ -24,6 +26,8 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "pg": "^8.23.1",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7"
   },

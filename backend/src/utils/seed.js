@@ -4,12 +4,66 @@
  * Atenção: recria o banco do zero (sequelize.sync({ force: true })) a cada execução.
  */
 require('dotenv').config();
-const { sequelize, User, Category, Article, Campaign, Donation } = require('../models');
+const readline = require('readline');
+const { sequelize, ambiente, User, Category, Article, Campaign, Donation } = require('../models');
+const { getConfig } = require('../services/agente/config');
+const { getEmbeddingProvider } = require('../services/agente/providers/embedding');
+const { reindexarTudo } = require('../services/agente/ingest/reindex');
+
+async function perguntarTerminal(mensagem) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) => {
+    rl.question(mensagem, (resposta) => {
+      rl.close();
+      resolve(resposta);
+    });
+  });
+}
+
+/**
+ * Guarda de proteção: impede que o seed execute e apague dados de um banco remoto
+ * por engano, a menos que PERMITIR_SEED_REMOTO=sim, a flag --confirmar-remoto seja passada
+ * e o usuário digite o host mascarado para confirmar.
+ */
+async function verificarGuardaRemota(amb = ambiente, { env = process.env, argv = process.argv, perguntar = perguntarTerminal } = {}) {
+  if (!amb || !amb.remoto) {
+    return true;
+  }
+
+  const permitidoEnv = env.PERMITIR_SEED_REMOTO === 'sim';
+  const flagPresente = argv.includes('--confirmar-remoto');
+
+  if (!permitidoEnv || !flagPresente) {
+    console.error(`\n[seed] ERRO: Execução de seed bloqueada em banco de dados remoto (${amb.hostMascarado}).`);
+    console.error('[seed] O comando seed recria o banco do zero (sync({ force: true })) e apagaria todos os dados remotos.');
+    console.error('[seed] Para permitir seed no banco remoto, defina a variável PERMITIR_SEED_REMOTO=sim E passe o argumento --confirmar-remoto.\n');
+    return false;
+  }
+
+  console.warn(`\n[seed] ATENÇÃO: Você está prestes a apagar todos os dados do banco remoto: ${amb.hostMascarado}`);
+  const resposta = await perguntar(`[seed] Digite exatamente o nome do host (${amb.hostMascarado}) para confirmar: `);
+
+  if (resposta && resposta.trim() === amb.hostMascarado.trim()) {
+    console.log('[seed] Confirmação recebida com sucesso. Prosseguindo com o seed remoto...');
+    return true;
+  }
+
+  console.error('[seed] Confirmação incorreta. Operação de seed cancelada.');
+  return false;
+}
 
 const diasAtras = (n) => new Date(Date.now() - n * 86400000);
 const emDias = (n) => new Date(Date.now() + n * 86400000);
 
 async function seed() {
+  const autorizacao = await verificarGuardaRemota(ambiente);
+  if (!autorizacao) {
+    process.exit(1);
+  }
+
   await sequelize.sync({ force: true });
 
   // ---------- Usuários (senha de todos: senha123) ----------
@@ -231,10 +285,31 @@ async function seed() {
   for (const dados of Object.values(dadosUsuarios)) {
     console.log(`  ${dados.tipo.padEnd(20)} ${dados.email}`);
   }
+
+  // Indexação inicial do assistente (se embedding configurado)
+  const config = getConfig();
+  const provider = getEmbeddingProvider(config);
+  if (provider) {
+    try {
+      const resumo = await reindexarTudo({ force: true, provider, config });
+      console.log(
+        `Índice do assistente atualizado: indexados=${resumo.indexados} inalterados=${resumo.inalterados} removidos=${resumo.removidos} falhas=${resumo.falhas.length} duracaoMs=${resumo.duracaoMs}`
+      );
+    } catch (err) {
+      console.warn(`Aviso: falha ao reindexar o assistente (${err.message}). Rode npm run agente:reindex depois de configurar a chave.`);
+    }
+  } else {
+    console.log('Aviso: chave de embedding não configurada. Rode npm run agente:reindex depois de configurar a chave.');
+  }
+
   process.exit(0);
 }
 
-seed().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (require.main === module) {
+  seed().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
+
+module.exports = { seed, verificarGuardaRemota };
