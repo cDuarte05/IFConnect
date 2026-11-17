@@ -281,6 +281,24 @@ describe('Reindexação em lote do RAG (services/agente/ingest/reindex.js)', () 
     await expect(reindexarTudo()).rejects.toThrow(EmbeddingNaoConfiguradoError);
   });
 
+  test('11. reindexarTudo com fontes inalteradas não aguarda delayMs (sleep injetado não é chamado)', async () => {
+    const provider = criarMockEmbeddingProvider();
+    // 1ª execução indexa
+    await reindexarTudo({ provider });
+
+    // 2ª execução com as fontes inalteradas
+    const sleepMock = jest.fn().mockResolvedValue();
+    const resumo = await reindexarTudo({
+      provider,
+      delayMs: 300,
+      sleep: sleepMock,
+    });
+
+    expect(resumo.indexados).toBe(0);
+    expect(resumo.inalterados).toBe(4);
+    expect(sleepMock).not.toHaveBeenCalled();
+  });
+
   test('parseArgs interpreta flags --dry-run, --force e --delay-ms com fallback 300', () => {
     expect(parseArgs([])).toEqual({ dryRun: false, force: false, delayMs: 300 });
     expect(parseArgs(['--dry-run', '--force', '--delay-ms=150'])).toEqual({

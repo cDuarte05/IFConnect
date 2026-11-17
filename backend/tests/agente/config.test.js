@@ -18,6 +18,7 @@ describe('Configuração do Agente e RAG (config.js)', () => {
     delete process.env.AGENTE_RAG_EMBEDDING_API_KEY;
     delete process.env.AGENTE_RAG_TOP_K;
     delete process.env.AGENTE_RAG_MIN_SCORE;
+    delete process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN;
   });
 
   afterAll(() => {
@@ -41,6 +42,7 @@ describe('Configuração do Agente e RAG (config.js)', () => {
     expect(config.rag.embeddingApiKey).toBeUndefined();
     expect(config.rag.topK).toBe(4);
     expect(config.rag.minScore).toBeNull();
+    expect(config.rag.reconciliarIntervaloMin).toBe(360);
   });
 
   test('recupera fallback para valores numéricos inválidos / NaN', () => {
@@ -57,12 +59,27 @@ describe('Configuração do Agente e RAG (config.js)', () => {
     expect(config.rag.embeddingDim).toBe(768);
     expect(config.rag.topK).toBe(4);
     expect(config.rag.minScore).toBeNull();
+    expect(config.rag.reconciliarIntervaloMin).toBe(360);
   });
 
   test('lê minScore numérico válido quando configurado', () => {
     process.env.AGENTE_RAG_MIN_SCORE = '0.75';
     const config = getConfig();
     expect(config.rag.minScore).toBe(0.75);
+  });
+
+  test('lê reconciliarIntervaloMin numérico válido, 0 para só inicialização e fallback 360 para inválido', () => {
+    process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN = '120';
+    expect(getConfig().rag.reconciliarIntervaloMin).toBe(120);
+
+    process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN = '0';
+    expect(getConfig().rag.reconciliarIntervaloMin).toBe(0);
+
+    process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN = '-10';
+    expect(getConfig().rag.reconciliarIntervaloMin).toBe(360);
+
+    process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN = 'invalido';
+    expect(getConfig().rag.reconciliarIntervaloMin).toBe(360);
   });
 
   test('usa AGENTE_RAG_EMBEDDING_API_KEY prioritariamente quando definida', () => {

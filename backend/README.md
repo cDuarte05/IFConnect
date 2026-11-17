@@ -77,6 +77,7 @@ recusados, encerrados ou dados pessoais de usuários.
 | `AGENTE_RAG_EMBEDDING_API_KEY` | *(vazio)* | Chave do embedding (se `AGENTE_IA_PROVIDER=gemini` e vazia, herda `AGENTE_IA_API_KEY`) |
 | `AGENTE_RAG_TOP_K` | `4` | Quantidade máxima de trechos enviados ao LLM |
 | `AGENTE_RAG_MIN_SCORE` | *(comentado / preencher após rodar `agente:eval`)* | Limiar mínimo de relevância vetorial |
+| `AGENTE_RAG_RECONCILIAR_INTERVALO_MIN` | `360` | Intervalo em minutos da reconciliação automática em background (0 = só na inicialização) |
 
 ### Como indexar, avaliar e testar
 

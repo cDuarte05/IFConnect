@@ -30,6 +30,15 @@ function getConfig() {
   const topK = parseNumber(process.env.AGENTE_RAG_TOP_K, 4);
   const minScore = parseNumber(process.env.AGENTE_RAG_MIN_SCORE, null);
 
+  const reconciliarRaw = process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN;
+  let reconciliarIntervaloMin = 360;
+  if (reconciliarRaw !== undefined && reconciliarRaw !== null && reconciliarRaw !== '') {
+    const n = Number(reconciliarRaw);
+    if (!Number.isNaN(n) && n >= 0) {
+      reconciliarIntervaloMin = n;
+    }
+  }
+
   return {
     enabled,
     provider,
@@ -45,6 +54,7 @@ function getConfig() {
       embeddingApiKey,
       topK,
       minScore,
+      reconciliarIntervaloMin,
     },
   };
 }

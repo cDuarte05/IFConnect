@@ -97,6 +97,7 @@ Todo comportamento acima deve continuar válido quando `AGENTE_RAG_ENABLED=false
 | RF-13 | Degradação conforme a seção 11. |
 | RF-14 | Com `AGENTE_RAG_ENABLED=false`, o comportamento é o descrito na seção 3, sem diferenças observáveis no contrato. |
 | RF-15 | Frontend: exibir a resposta como **texto** (nunca HTML), fontes como links internos, estados de carregando e erro, e ocultar o assistente se o recurso estiver desabilitado. |
+| RF-18 | Reconciliação automática do índice na inicialização e periodicamente; falhas nunca derrubam o servidor nem as rotas; execuções não se sobrepõem. |
 
 ## 7. Contrato da API
 
@@ -211,6 +212,7 @@ Variáveis novas deste RAG [PROPOSTA]: extensão da lista do documento, a regist
 | `AGENTE_RAG_EMBEDDING_API_KEY` | chave do embedding, se diferente da do LLM |
 | `AGENTE_RAG_TOP_K` | trechos enviados ao LLM |
 | `AGENTE_RAG_MIN_SCORE` | limiar de relevância |
+| `AGENTE_RAG_RECONCILIAR_INTERVALO_MIN` | intervalo de reconciliação automática do índice em minutos (padrão 360; 0 = só inicialização) |
 
 ## 11. Degradação e falhas
 
