@@ -13,6 +13,8 @@ npm run seed   # cria banco SQLite local com dados de exemplo
 npm run dev    # inicia em http://localhost:4000
 ```
 
+> **Atenção:** `npm run seed` recria o banco do zero e apaga todas as tabelas existentes, inclusive o índice do assistente (`agente_chunks`).
+
 ## Principais rotas
 
 | Método | Rota | Descrição | Autenticação |

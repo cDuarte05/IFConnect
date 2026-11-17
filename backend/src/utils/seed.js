@@ -5,6 +5,9 @@
  */
 require('dotenv').config();
 const { sequelize, User, Category, Article, Campaign, Donation } = require('../models');
+const { getConfig } = require('../services/agente/config');
+const { getEmbeddingProvider } = require('../services/agente/providers/embedding');
+const { reindexarTudo } = require('../services/agente/ingest/reindex');
 
 const diasAtras = (n) => new Date(Date.now() - n * 86400000);
 const emDias = (n) => new Date(Date.now() + n * 86400000);
@@ -231,6 +234,26 @@ async function seed() {
   for (const dados of Object.values(dadosUsuarios)) {
     console.log(`  ${dados.tipo.padEnd(20)} ${dados.email}`);
   }
+
+  const config = getConfig();
+  const provider = getEmbeddingProvider(config);
+  if (provider) {
+    try {
+      const r = await reindexarTudo({ config, provider, force: true });
+      if (r.falhas && r.falhas.length > 0) {
+        console.warn('Aviso: Rode npm run agente:reindex depois de configurar a chave');
+      } else {
+        console.log(
+          `[agente:reindex] modelo=${r.modelo} dim=${r.dim} indexados=${r.indexados} inalterados=${r.inalterados} removidos=${r.removidos} orfaosRemovidos=${r.orfaosRemovidos} ignorados=${r.ignorados} falhas=${r.falhas.length} duracaoMs=${r.duracaoMs}`
+        );
+      }
+    } catch (err) {
+      console.warn('Aviso: Rode npm run agente:reindex depois de configurar a chave');
+    }
+  } else {
+    console.warn('Aviso: Rode npm run agente:reindex depois de configurar a chave');
+  }
+
   process.exit(0);
 }
 
