@@ -53,7 +53,7 @@ async function reindexarTudo({
   force = false,
   dryRun = false,
   delayMs = 0,
-  log = () => {},
+  log = () => { },
   sleep = padraoSleep,
 } = {}) {
   const inicio = Date.now();
@@ -132,8 +132,8 @@ async function reindexarTudo({
     if (!chavesPublicas.has(chave)) {
       const qtd = dryRun
         ? await AgentChunk.count({
-            where: { sourceType: grupo.sourceType, sourceId: grupo.sourceId },
-          })
+          where: { sourceType: grupo.sourceType, sourceId: grupo.sourceId },
+        })
         : await removerFonte(grupo.sourceType, grupo.sourceId);
 
       orfaosRemovidos += qtd;
@@ -185,10 +185,10 @@ async function executarCli() {
 
     console.log(
       `[agente:reindex] Concluído (${resumo.dryRun ? 'dry-run' : 'aplicado'}) | ` +
-        `modelo=${resumo.modelo} dim=${resumo.dim} | ` +
-        `indexados=${resumo.indexados} inalterados=${resumo.inalterados} ` +
-        `removidos=${resumo.removidos} orfaosRemovidos=${resumo.orfaosRemovidos} ` +
-        `ignorados=${resumo.ignorados} falhas=${resumo.falhas.length} duracaoMs=${resumo.duracaoMs}`
+      `modelo=${resumo.modelo} dim=${resumo.dim} | ` +
+      `indexados=${resumo.indexados} inalterados=${resumo.inalterados} ` +
+      `removidos=${resumo.removidos} orfaosRemovidos=${resumo.orfaosRemovidos} ` +
+      `ignorados=${resumo.ignorados} falhas=${resumo.falhas.length} duracaoMs=${resumo.duracaoMs}`
     );
 
     process.exitCode = codigoDeSaida(resumo);
