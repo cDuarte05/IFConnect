@@ -89,10 +89,6 @@ async function reindexarTudo({
   const falhas = [];
 
   for (let i = 0; i < fontes.length; i++) {
-    if (i > 0 && delayMs > 0) {
-      await sleep(delayMs);
-    }
-
     const { sourceType, sourceId } = fontes[i];
     const prefixo = `[${i + 1}/${fontes.length}] ${sourceType} ${sourceId}`;
 
@@ -110,6 +106,10 @@ async function reindexarTudo({
       else if (res.acao === 'ignorado') ignorados += 1;
 
       log(`${prefixo}: ${res.acao} (${res.chunks} chunks)`);
+
+      if ((res.acao === 'indexado' || res.acao === 'removido') && delayMs > 0) {
+        await sleep(delayMs);
+      }
     } catch (err) {
       falhas.push({
         sourceType,

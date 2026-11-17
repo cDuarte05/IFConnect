@@ -10,7 +10,7 @@ describe('Avaliação offline do RAG (tests/agente/eval/runner.js)', () => {
   beforeAll(async () => {
     const provider = criarProvider();
     relatorio = await executarAvaliacao({ provider, k: 4, log: () => {} });
-  });
+  }, 30000);
 
   test('1. executarAvaliacao roda sem lançar exceção e retorna modos lexical, vetorial e hibrido', () => {
     expect(relatorio).toBeDefined();

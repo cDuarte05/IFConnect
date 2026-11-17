@@ -97,6 +97,7 @@ Todo comportamento acima deve continuar válido quando `AGENTE_RAG_ENABLED=false
 | RF-13 | Degradação conforme a seção 11. |
 | RF-14 | Com `AGENTE_RAG_ENABLED=false`, o comportamento é o descrito na seção 3, sem diferenças observáveis no contrato. |
 | RF-15 | Frontend: exibir a resposta como **texto** (nunca HTML), fontes como links internos, estados de carregando e erro, e ocultar o assistente se o recurso estiver desabilitado. |
+| RF-18 | Reconciliação automática do índice na inicialização e periodicamente; falhas nunca derrubam o servidor nem as rotas; execuções não se sobrepõem. |
 
 ## 7. Contrato da API
 
@@ -290,5 +291,6 @@ Matriz completa por critério de aceite em [`cobertura-ca.md`](./cobertura-ca.md
 | RF-09 a RF-12 | T8 a T12, T15, T16 | CA-01, CA-02, CA-07, CA-08, CA-08b | `backend/tests/agente/retrieval.lexical.test.js`, `backend/tests/agente/retrieval.vector.test.js`, `backend/tests/agente/retrieval.hybrid.test.js`, `backend/tests/agente/prompt.test.js`, `backend/tests/agente/citacoes.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js`, `backend/tests/agente/eval/avaliacao.test.js` |
 | RF-13, RF-14 | T12, T13, T16 | CA-06, CA-14 | `backend/tests/agente/llm.providers.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js`, `backend/tests/agente.test.js` |
 | RF-15 | T14 | — | Verificação manual de usabilidade/acessibilidade em `frontend/src/components/AssistenteIA.jsx` + contrato de API em `backend/tests/agente/rota.test.js` |
+| RF-18 | T18 | — | `backend/tests/agente/reconciliador.test.js` |
 | SEG-01 a SEG-03 | T-sec, T10, T11, T16 | CA-09, CA-10 | `backend/tests/agente/injecao.test.js`, `backend/tests/agente/prompt.test.js`, `backend/tests/agente/retrieval.hybrid.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js` |
 | RN-05 | T10, T12, T16 | CA-15 | `backend/tests/agente/retrieval.hybrid.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js` |

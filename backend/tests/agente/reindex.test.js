@@ -256,7 +256,7 @@ describe('Reindexação em lote do RAG (services/agente/ingest/reindex.js)', () 
     expect(await AgentChunk.count()).toBe(3);
   });
 
-  test('9. delayMs é respeitado entre fontes (sleep injetado)', async () => {
+  test('9. delayMs é respeitado após fontes indexadas (sleep injetado)', async () => {
     const provider = criarMockEmbeddingProvider();
     const sleepMock = jest.fn().mockResolvedValue();
 
@@ -266,11 +266,28 @@ describe('Reindexação em lote do RAG (services/agente/ingest/reindex.js)', () 
       sleep: sleepMock,
     });
 
-    // Com 4 fontes, há 3 intervalos entre fontes (n - 1)
-    expect(sleepMock).toHaveBeenCalledTimes(3);
+    // 4 fontes públicas indexadas geram 4 pausas delayMs
+    expect(sleepMock).toHaveBeenCalledTimes(4);
     expect(sleepMock).toHaveBeenNthCalledWith(1, 250);
     expect(sleepMock).toHaveBeenNthCalledWith(2, 250);
     expect(sleepMock).toHaveBeenNthCalledWith(3, 250);
+    expect(sleepMock).toHaveBeenNthCalledWith(4, 250);
+  });
+
+  test('9b. reindexarTudo com fontes inalteradas não aguarda delayMs (g)', async () => {
+    const provider = criarMockEmbeddingProvider();
+    await reindexarTudo({ provider });
+
+    const sleepMock = jest.fn().mockResolvedValue();
+    const resumo = await reindexarTudo({
+      provider,
+      delayMs: 300,
+      sleep: sleepMock,
+    });
+
+    expect(resumo.inalterados).toBe(4);
+    expect(resumo.indexados).toBe(0);
+    expect(sleepMock).not.toHaveBeenCalled();
   });
 
   test('10. sem chave (provider gemini sem key): reindexarTudo lança EmbeddingNaoConfiguradoError', async () => {

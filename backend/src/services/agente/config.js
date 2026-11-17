@@ -29,6 +29,9 @@ function getConfig() {
 
   const topK = parseNumber(process.env.AGENTE_RAG_TOP_K, 4);
   const minScore = parseNumber(process.env.AGENTE_RAG_MIN_SCORE, null);
+  const rawIntervalo = parseNumber(process.env.AGENTE_RAG_RECONCILIAR_INTERVALO_MIN, 360);
+  const reconciliarIntervaloMin =
+    Number.isFinite(rawIntervalo) && rawIntervalo >= 0 ? rawIntervalo : 360;
 
   return {
     enabled,
@@ -45,6 +48,7 @@ function getConfig() {
       embeddingApiKey,
       topK,
       minScore,
+      reconciliarIntervaloMin,
     },
   };
 }
