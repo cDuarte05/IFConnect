@@ -518,6 +518,94 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 1rem 0 0.35
   to { transform: rotate(360deg); }
 }
 
+/* Atalhos / Chips rápidos */
+.assistente-chips-container {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem 0.4rem;
+  background-color: var(--cor-papel-alt);
+  border-top: 1px solid var(--cor-borda);
+  flex-wrap: wrap;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.assistente-chip {
+  background-color: #ffffff;
+  border: 1px solid var(--cor-borda);
+  border-radius: 9999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-family: var(--fonte-corpo);
+  color: var(--cor-tinta);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.assistente-chip:hover:not(:disabled) {
+  background-color: var(--cor-ambar-claro);
+  border-color: var(--cor-tinta);
+}
+
+.assistente-chip:focus-visible {
+  outline: 2px solid var(--cor-teal);
+  outline-offset: 1px;
+}
+
+.assistente-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Rodapé informativo */
+.assistente-rodape-info {
+  padding: 0.35rem 0.9rem 0.5rem;
+  background-color: #ffffff;
+  text-align: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.assistente-dica-pagina {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--cor-teal);
+  margin: 0;
+}
+
+.assistente-aviso-privacidade {
+  font-size: 0.68rem;
+  color: var(--cor-tinta-suave);
+  margin: 0;
+}
+
+.assistente-botao-tentar-novamente {
+  margin-top: 0.5rem;
+  display: inline-block;
+  background-color: var(--cor-ambar);
+  color: var(--cor-tinta);
+  border: 1px solid var(--cor-tinta);
+  border-radius: var(--raio);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--fonte-corpo);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.assistente-botao-tentar-novamente:hover:not(:disabled) {
+  background-color: var(--cor-ambar-escuro);
+}
+
+.assistente-botao-tentar-novamente:focus-visible {
+  outline: 2px solid var(--cor-teal);
+  outline-offset: 1px;
+}
+
 @media (max-width: 480px) {
   .assistente-widget-container {
     right: 0.75rem;

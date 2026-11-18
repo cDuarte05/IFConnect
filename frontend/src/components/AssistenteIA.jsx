@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, matchPath } from 'react-router-dom';
 import api from '../api/client';
 
 const BOAS_VINDAS = {
@@ -8,12 +8,51 @@ const BOAS_VINDAS = {
   fontes: [],
 };
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function detectarPagina(pathname) {
+  if (matchPath({ path: '/publicacoes/:id/editar', end: true }, pathname)) {
+    return null;
+  }
+  const matchPub = matchPath({ path: '/publicacoes/:id', end: true }, pathname);
+  if (matchPub?.params?.id) {
+    return { tipo: 'publicacao', id: matchPub.params.id };
+  }
+
+  const matchVitrine = matchPath({ path: '/vitrine/:id', end: true }, pathname);
+  if (matchVitrine?.params?.id && UUID_REGEX.test(matchVitrine.params.id)) {
+    return { tipo: 'projeto', id: matchVitrine.params.id };
+  }
+
+  return null;
+}
+
 export default function AssistenteIA() {
   const [habilitado, setHabilitado] = useState(null);
   const [aberto, setAberto] = useState(false);
   const [pergunta, setPergunta] = useState('');
   const [mensagens, setMensagens] = useState([BOAS_VINDAS]);
   const [enviando, setEnviando] = useState(false);
+  const [textoProgresso, setTextoProgresso] = useState('Pensando...');
+
+  const location = useLocation();
+  const pagina = useMemo(() => detectarPagina(location.pathname), [location.pathname]);
+
+  const atalhos = useMemo(() => {
+    const lista = [];
+    if (pagina) {
+      if (pagina.tipo === 'publicacao') {
+        lista.push('Resumir esta publicação');
+      } else if (pagina.tipo === 'projeto') {
+        lista.push('Resumir este projeto');
+      }
+      lista.push('Explicar de forma simples');
+    }
+    lista.push('Como publicar uma notícia?');
+    lista.push('Como cadastrar um projeto?');
+    lista.push('Como apoiar um projeto?');
+    return lista;
+  }, [pagina]);
 
   const painelRef = useRef(null);
   const botaoToggleRef = useRef(null);
@@ -103,18 +142,23 @@ export default function AssistenteIA() {
     });
   }
 
-  async function enviar(e) {
-    e.preventDefault();
-    const texto = pergunta.trim();
+  async function enviarTexto(textoAEnviar) {
+    const texto = (textoAEnviar || '').trim();
     if (texto.length < 2 || enviando) return;
 
     const idAtual = ++reqIdRef.current;
     setMensagens((m) => [...m, { papel: 'usuario', texto, fontes: [] }]);
     setPergunta('');
     setEnviando(true);
+    setTextoProgresso('Pensando...');
+
+    const timerProgresso = setTimeout(() => {
+      setTextoProgresso('Ainda procurando... o servidor pode estar acordando.');
+    }, 8000);
 
     try {
-      const { data } = await api.post('/agente/consulta', { pergunta: texto });
+      const payload = pagina ? { pergunta: texto, pagina } : { pergunta: texto };
+      const { data } = await api.post('/agente/consulta', payload, { timeout: 30000 });
       if (idAtual !== reqIdRef.current) return;
       setMensagens((m) => [
         ...m,
@@ -122,14 +166,40 @@ export default function AssistenteIA() {
       ]);
     } catch (err) {
       if (idAtual !== reqIdRef.current) return;
-      const msg =
-        err.response?.data?.mensagem || 'Não foi possível consultar o assistente agora.';
-      setMensagens((m) => [...m, { papel: 'assistente', texto: msg, fontes: [] }]);
+      const isTimeout =
+        err.code === 'ECONNABORTED' ||
+        err.message?.toLowerCase().includes('timeout') ||
+        err.response?.status === 408 ||
+        err.response?.status === 504;
+
+      if (isTimeout) {
+        setMensagens((m) => [
+          ...m,
+          {
+            papel: 'assistente',
+            texto: 'A resposta demorou muito para chegar. O servidor pode estar inicializando.',
+            fontes: [],
+            podeTentarNovamente: true,
+            perguntaParaReenviar: texto,
+          },
+        ]);
+      } else {
+        const msg =
+          err.response?.data?.mensagem || 'Não foi possível consultar o assistente agora.';
+        setMensagens((m) => [...m, { papel: 'assistente', texto: msg, fontes: [] }]);
+      }
     } finally {
+      clearTimeout(timerProgresso);
       if (idAtual === reqIdRef.current) {
         setEnviando(false);
+        setTextoProgresso('Pensando...');
       }
     }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    enviarTexto(pergunta);
   }
 
   // Aceita apenas URLs internas iniciadas por "/" (e nunca "//" externo)
@@ -206,19 +276,47 @@ export default function AssistenteIA() {
                       ))}
                     </ul>
                   )}
+                  {m.podeTentarNovamente && (
+                    <button
+                      type="button"
+                      className="assistente-botao-tentar-novamente"
+                      onClick={() => enviarTexto(m.perguntaParaReenviar)}
+                      disabled={enviando}
+                    >
+                      Tentar novamente
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
             {enviando && (
               <div className="assistente-digitando" role="status">
                 <span className="ponto-pulsante" aria-hidden="true" />
-                <span>Pensando...</span>
+                <span>{textoProgresso}</span>
               </div>
             )}
             <div ref={fimRef} />
           </div>
 
-          <form onSubmit={enviar} className="assistente-form">
+          <div
+            className="assistente-chips-container"
+            role="toolbar"
+            aria-label="Sugestões de perguntas rápidas"
+          >
+            {atalhos.map((chipTexto) => (
+              <button
+                key={chipTexto}
+                type="button"
+                className="assistente-chip"
+                onClick={() => enviarTexto(chipTexto)}
+                disabled={enviando}
+              >
+                {chipTexto}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="assistente-form">
             <input
               ref={inputRef}
               id="perguntaAssistente"
@@ -269,6 +367,17 @@ export default function AssistenteIA() {
               )}
             </button>
           </form>
+
+          <div className="assistente-rodape-info">
+            {pagina && (
+              <p className="assistente-dica-pagina">
+                Posso ler a publicação/projeto aberto.
+              </p>
+            )}
+            <p className="assistente-aviso-privacidade">
+              Não envie dados pessoais.
+            </p>
+          </div>
         </section>
       )}
 
