@@ -10,9 +10,11 @@ const {
 const { processarCitacoes } = require('./generation/citacoes');
 const { ehPerguntaDeNavegacao } = require('./generation/intencao');
 const { selecionarGuia } = require('./generation/guia');
+const { ehPerguntaSobrePagina, carregarContextoPagina } = require('./generation/pagina');
 
 /**
- * Orquestra recuperação (T10) + guia do portal (V3-A) + geração (T11) + degradação segura (seção 11 da spec).
+ * Orquestra recuperação (T10) + guia do portal (V3-A) + contexto da página (V3-B)
+ * + geração (T11) + degradação segura (seção 11 da spec).
  *
  * Esta função NÃO importa agenteService (evita dependência circular). Falhas inesperadas
  * (ex.: erro na recuperação) propagam: quem decide cair no fluxo legado é o agenteService.
@@ -23,6 +25,10 @@ const MSG_SEM_RESULTADO =
 const MSG_ENCONTRADOS = 'Encontrei estes conteúdos publicados relacionados à sua pergunta:';
 const MSG_NAVEGACAO_ESTATICA =
   "Publicações ficam na página inicial e projetos na Vitrine científica. Para publicar é preciso entrar ou criar uma conta e usar 'Publicar' ou 'Cadastrar projeto'. Novos conteúdos passam por análise antes de ficarem públicos.";
+const MSG_SEM_PAGINA_ABERTA =
+  'Não consigo ver uma página aberta. Abra uma publicação ou um projeto e pergunte de novo.';
+const MSG_PAGINA_INACESSIVEL =
+  'Não consegui acessar o conteúdo desta página. Só posso resumir publicações e projetos já publicados.';
 
 // Delega via módulo para permitir substituição (spy) em testes.
 const recuperarPadrao = (...args) => hybrid.recuperar(...args);
@@ -66,16 +72,35 @@ async function consultarRag(
     recuperarFn = recuperarPadrao,
     llm = getLlmProvider,
     selecionarGuiaFn = selecionarGuia,
+    carregarContextoPaginaFn = carregarContextoPagina,
+    pagina,
   } = {}
 ) {
   // a) A rota já validou o tamanho; aqui apenas normalizamos/removemos "<" e ">"
   const pergunta = sanitizarPergunta(perguntaBruta);
 
-  // b) Seleção do guia de orientação para dúvidas de uso do portal
-  const { texto: guiaTexto } = selecionarGuiaFn(pergunta);
+  // b) Tratamento de pergunta sobre a página atualmente aberta
+  let recuperadas;
+  const sobrePagina = ehPerguntaSobrePagina(pergunta);
 
-  // c) Recuperação híbrida (já filtrada por status público no banco)
-  const { fontes: recuperadas } = await recuperarFn(pergunta, { config });
+  if (sobrePagina) {
+    if (!pagina || !pagina.id) {
+      return { resposta: MSG_SEM_PAGINA_ABERTA, fontes: [], modo: 'busca' };
+    }
+    const fontePagina = await carregarContextoPaginaFn(pagina);
+    if (!fontePagina) {
+      return { resposta: MSG_PAGINA_INACESSIVEL, fontes: [], modo: 'busca' };
+    }
+    // Usa [fontePagina] como único contexto (pula a recuperação)
+    recuperadas = [fontePagina];
+  } else {
+    // Se NÃO é sobre a página, pagina é ignorada: nada do conteúdo dela entra no prompt
+    const { fontes } = await recuperarFn(pergunta, { config });
+    recuperadas = fontes;
+  }
+
+  // c) Seleção do guia de orientação para dúvidas de uso do portal
+  const { texto: guiaTexto } = selecionarGuiaFn(pergunta);
 
   // d) Sem contexto e sem guia: pergunta de conteúdo NÃO chama o LLM (RF-11)
   // Contexto vazio não impede responder dúvidas de uso
@@ -120,4 +145,6 @@ module.exports = {
   MSG_SEM_RESULTADO,
   MSG_ENCONTRADOS,
   MSG_NAVEGACAO_ESTATICA,
+  MSG_SEM_PAGINA_ABERTA,
+  MSG_PAGINA_INACESSIVEL,
 };

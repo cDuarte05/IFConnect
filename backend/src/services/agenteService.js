@@ -220,11 +220,11 @@ function respostaSemIA({ artigos, projetos, categorias }) {
   return 'Encontrei estes conteúdos publicados relacionados à sua pergunta:';
 }
 
-async function responder(perguntaBruta) {
+async function responder(perguntaBruta, { pagina } = {}) {
   const config = getConfig();
   if (config.rag.enabled) {
     try {
-      return await consultarRag(perguntaBruta, { config });
+      return await consultarRag(perguntaBruta, { config, pagina });
     } catch (err) {
       if (process.env.NODE_ENV !== 'test') console.warn('[agente] RAG falhou, usando fluxo legado:', err.message);
     }

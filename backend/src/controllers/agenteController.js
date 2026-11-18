@@ -10,6 +10,6 @@ exports.consultar = asyncHandler(async (req, res) => {
   if (process.env.AGENTE_IA_ENABLED !== 'true') {
     return res.status(503).json({ erro: true, mensagem: 'O assistente está temporariamente indisponível.' });
   }
-  const resultado = await agenteService.responder(req.body.pergunta);
+  const resultado = await agenteService.responder(req.body.pergunta, { pagina: req.body.pagina });
   res.json(resultado);
 });

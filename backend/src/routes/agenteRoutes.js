@@ -30,6 +30,18 @@ router.post(
       .trim()
       .isLength({ min: 2, max: 500 })
       .withMessage('A pergunta deve ter entre 2 e 500 caracteres'),
+    body('pagina')
+      .optional()
+      .isObject()
+      .withMessage('Campo pagina inválido'),
+    body('pagina.tipo')
+      .if(body('pagina').exists({ checkNull: true }))
+      .isIn(['publicacao', 'projeto'])
+      .withMessage('Tipo de página inválido'),
+    body('pagina.id')
+      .if(body('pagina').exists({ checkNull: true }))
+      .isUUID()
+      .withMessage('ID de página inválido'),
   ],
   validar,
   controller.consultar
