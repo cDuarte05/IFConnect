@@ -3,17 +3,26 @@ const { body } = require('express-validator');
 const authController = require('../controllers/authController');
 const { autenticar } = require('../middleware/auth');
 const validar = require('../middleware/validate');
+const {
+  NOME_MIN,
+  NOME_MAX,
+  EMAIL_MAX,
+  SENHA_MIN,
+  SENHA_MAX,
+  INSTITUICAO_MAX,
+  BIO_MAX,
+} = require('../config/limites');
 
 router.post(
   '/registrar',
   [
     body('nome').trim().notEmpty().withMessage('Nome é obrigatório')
-      .isLength({ min: 2, max: 120 }).withMessage('Nome deve ter entre 2 e 120 caracteres'),
+      .isLength({ min: NOME_MIN, max: NOME_MAX }).withMessage(`Nome deve ter entre ${NOME_MIN} e ${NOME_MAX} caracteres`),
     body('email').trim().isEmail().withMessage('Email inválido')
-      .isLength({ max: 180 }).withMessage('Email muito longo (máximo 180 caracteres)').normalizeEmail(),
-    body('senha').isLength({ min: 6, max: 72 }).withMessage('Senha deve ter entre 6 e 72 caracteres'),
+      .isLength({ max: EMAIL_MAX }).withMessage(`Email muito longo (máximo ${EMAIL_MAX} caracteres)`).normalizeEmail(),
+    body('senha').isLength({ min: SENHA_MIN, max: SENHA_MAX }).withMessage(`Senha deve ter entre ${SENHA_MIN} e ${SENHA_MAX} caracteres`),
     body('instituicao').optional({ checkFalsy: true }).trim()
-      .isLength({ max: 150 }).withMessage('Nome da instituição muito longo (máximo 150 caracteres)'),
+      .isLength({ max: INSTITUICAO_MAX }).withMessage(`Nome da instituição muito longo (máximo ${INSTITUICAO_MAX} caracteres)`),
   ],
   validar,
   authController.registrar
@@ -36,10 +45,10 @@ router.patch(
   autenticar,
   [
     body('nome').optional().trim().notEmpty().withMessage('Nome não pode ficar vazio')
-      .isLength({ min: 2, max: 120 }).withMessage('Nome deve ter entre 2 e 120 caracteres'),
+      .isLength({ min: NOME_MIN, max: NOME_MAX }).withMessage(`Nome deve ter entre ${NOME_MIN} e ${NOME_MAX} caracteres`),
     body('instituicao').optional({ checkFalsy: true }).trim()
-      .isLength({ max: 150 }).withMessage('Nome da instituição muito longo (máximo 150 caracteres)'),
-    body('bio').optional({ checkFalsy: true }).trim().isLength({ max: 2000 }).withMessage('Bio muito longa (máximo 2000 caracteres)'),
+      .isLength({ max: INSTITUICAO_MAX }).withMessage(`Nome da instituição muito longo (máximo ${INSTITUICAO_MAX} caracteres)`),
+    body('bio').optional({ checkFalsy: true }).trim().isLength({ max: BIO_MAX }).withMessage(`Bio muito longa (máximo ${BIO_MAX} caracteres)`),
   ],
   validar,
   authController.atualizarPerfil

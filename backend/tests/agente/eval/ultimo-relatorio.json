@@ -1,5 +1,5 @@
 {
-  "geradoEm": "2026-11-18T11:44:56.741Z",
+  "geradoEm": "2026-11-18T23:41:30.625Z",
   "provider": {
     "provider": "mock",
     "model": "mock-embedding",
@@ -426,8 +426,14 @@
   },
   "navegacao": {
     "total": 25,
-    "acertos": 25,
-    "falsosPositivos": [],
+    "acertos": 20,
+    "falsosPositivos": [
+      "Q09",
+      "Q10",
+      "Q14",
+      "Q16",
+      "Q18"
+    ],
     "falsosNegativos": []
   },
   "detalhePorPergunta": {

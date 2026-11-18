@@ -4,8 +4,16 @@ const controller = require('../controllers/campaignController');
 const commentController = require('../controllers/commentController');
 const { autenticar, autenticarOpcional, permitir } = require('../middleware/auth');
 const validar = require('../middleware/validate');
+const {
+  TITULO_MIN,
+  TITULO_MAX,
+  DESCRICAO_MAX,
+  PALAVRAS_CHAVE_MAX,
+  IMAGEM_MAX,
+  TEMAS,
+} = require('../config/limites');
 
-const TEMAS_VALIDOS = ['cientifico', 'educacional', 'cultural', 'comunitario'];
+const TEMAS_VALIDOS = TEMAS;
 
 // Reaproveitadas na criação e na edição — mantêm a mesma regra nos dois lugares.
 const validacaoPrazoFinal = body('prazoFinal')
@@ -20,17 +28,17 @@ const validacaoPrazoFinal = body('prazoFinal')
 const validacaoImagemCapa = body('imagemCapaUrl')
   .optional({ nullable: true, checkFalsy: true })
   .isURL().withMessage('URL da imagem de capa inválida')
-  .isLength({ max: 500 }).withMessage('URL da imagem de capa muito longa (máximo 500 caracteres)');
+  .isLength({ max: IMAGEM_MAX }).withMessage(`URL da imagem de capa muito longa (máximo ${IMAGEM_MAX} caracteres)`);
 
 const validacaoCampanha = [
   body('titulo').trim().notEmpty().withMessage('Título é obrigatório')
-    .isLength({ min: 10, max: 150 }).withMessage('Título deve ter entre 10 e 150 caracteres'),
+    .isLength({ min: TITULO_MIN, max: TITULO_MAX }).withMessage(`Título deve ter entre ${TITULO_MIN} e ${TITULO_MAX} caracteres`),
   body('descricao').trim().notEmpty().withMessage('Descrição é obrigatória')
-    .isLength({ max: 5000 }).withMessage('Descrição muito longa (máximo 5.000 caracteres)'),
+    .isLength({ max: DESCRICAO_MAX }).withMessage('Descrição muito longa (máximo 5.000 caracteres)'),
   body('metaFinanceira').isFloat({ gt: 0 }).withMessage('Meta financeira deve ser um valor maior que zero'),
   body('categoryId').optional({ nullable: true }).isUUID().withMessage('Categoria inválida'),
   body('tema').optional({ nullable: true }).isIn(TEMAS_VALIDOS).withMessage('Tema inválido'),
-  body('palavrasChave').optional().trim().isLength({ max: 300 }).withMessage('Palavras-chave devem ter no máximo 300 caracteres'),
+  body('palavrasChave').optional().trim().isLength({ max: PALAVRAS_CHAVE_MAX }).withMessage(`Palavras-chave devem ter no máximo ${PALAVRAS_CHAVE_MAX} caracteres`),
   validacaoPrazoFinal,
   validacaoImagemCapa,
 ];
@@ -65,13 +73,13 @@ router.put(
   autenticar,
   [
     body('titulo').optional().trim().notEmpty().withMessage('Título não pode ficar vazio')
-      .isLength({ min: 10, max: 150 }).withMessage('Título deve ter entre 10 e 150 caracteres'),
+      .isLength({ min: TITULO_MIN, max: TITULO_MAX }).withMessage(`Título deve ter entre ${TITULO_MIN} e ${TITULO_MAX} caracteres`),
     body('descricao').optional().trim().notEmpty().withMessage('Descrição não pode ficar vazia')
-      .isLength({ max: 5000 }).withMessage('Descrição muito longa (máximo 5.000 caracteres)'),
+      .isLength({ max: DESCRICAO_MAX }).withMessage('Descrição muito longa (máximo 5.000 caracteres)'),
     body('metaFinanceira').optional().isFloat({ gt: 0 }).withMessage('Meta financeira deve ser um valor maior que zero'),
     body('categoryId').optional({ nullable: true }).isUUID().withMessage('Categoria inválida'),
     body('tema').optional({ nullable: true }).isIn(TEMAS_VALIDOS).withMessage('Tema inválido'),
-    body('palavrasChave').optional().trim().isLength({ max: 300 }).withMessage('Palavras-chave devem ter no máximo 300 caracteres'),
+    body('palavrasChave').optional().trim().isLength({ max: PALAVRAS_CHAVE_MAX }).withMessage(`Palavras-chave devem ter no máximo ${PALAVRAS_CHAVE_MAX} caracteres`),
     validacaoPrazoFinal,
     validacaoImagemCapa,
   ],

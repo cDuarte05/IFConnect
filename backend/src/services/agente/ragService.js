@@ -9,9 +9,10 @@ const {
 } = require('./generation/prompt');
 const { processarCitacoes } = require('./generation/citacoes');
 const { ehPerguntaDeNavegacao } = require('./generation/intencao');
+const { selecionarGuia } = require('./generation/guia');
 
 /**
- * Orquestra recuperação (T10) + geração (T11) + degradação segura (seção 11 da spec).
+ * Orquestra recuperação (T10) + guia do portal (V3-A) + geração (T11) + degradação segura (seção 11 da spec).
  *
  * Esta função NÃO importa agenteService (evita dependência circular). Falhas inesperadas
  * (ex.: erro na recuperação) propagam: quem decide cair no fluxo legado é o agenteService.
@@ -48,7 +49,10 @@ async function mensagemSemResultado() {
   return `${MSG_SEM_RESULTADO}${cats}`;
 }
 
-function fallbackBusca(recuperadas) {
+function fallbackBusca(recuperadas, guiaTexto = '') {
+  if (guiaTexto) {
+    return { resposta: guiaTexto, fontes: recuperadas.map(formatarFonte), modo: 'busca' };
+  }
   if (recuperadas.length) {
     return { resposta: MSG_ENCONTRADOS, fontes: recuperadas.map(formatarFonte), modo: 'busca' };
   }
@@ -57,41 +61,52 @@ function fallbackBusca(recuperadas) {
 
 async function consultarRag(
   perguntaBruta,
-  { config = getConfig(), recuperarFn = recuperarPadrao, llm = getLlmProvider } = {}
+  {
+    config = getConfig(),
+    recuperarFn = recuperarPadrao,
+    llm = getLlmProvider,
+    selecionarGuiaFn = selecionarGuia,
+  } = {}
 ) {
   // a) A rota já validou o tamanho; aqui apenas normalizamos/removemos "<" e ">"
   const pergunta = sanitizarPergunta(perguntaBruta);
 
-  // b) Recuperação híbrida (já filtrada por status público no banco)
+  // b) Seleção do guia de orientação para dúvidas de uso do portal
+  const { texto: guiaTexto } = selecionarGuiaFn(pergunta);
+
+  // c) Recuperação híbrida (já filtrada por status público no banco)
   const { fontes: recuperadas } = await recuperarFn(pergunta, { config });
 
-  // c) Sem contexto: pergunta de conteúdo NÃO chama o LLM (RF-11)
+  // d) Sem contexto e sem guia: pergunta de conteúdo NÃO chama o LLM (RF-11)
+  // Contexto vazio não impede responder dúvidas de uso
   const navegacao = ehPerguntaDeNavegacao(pergunta);
-  if (!recuperadas.length && !navegacao) {
+  const temDuvidaUso = !!guiaTexto || navegacao;
+
+  if (!recuperadas.length && !temDuvidaUso) {
     return { resposta: await mensagemSemResultado(), fontes: [], modo: 'busca' };
   }
 
-  // d) Geração com LLM
+  // e) Geração com LLM
   const provedor = llm(config.provider);
   if (!provedor || !config.apiKey) {
     avisar('[agente] provedor/chave não configurados — usando modo busca');
-    return fallbackBusca(recuperadas);
+    return fallbackBusca(recuperadas, guiaTexto);
   }
 
-  const { mensagem, refsIncluidas } = montarMensagemUsuario(pergunta, recuperadas);
+  const { mensagem, refsIncluidas } = montarMensagemUsuario(pergunta, recuperadas, { guia: guiaTexto });
 
   let respostaLlm;
   try {
     respostaLlm = await provedor.generate({ system: SYSTEM_PROMPT_RAG, user: mensagem, config });
   } catch (err) {
     avisar('[agente] provedor indisponível, usando fallback:', err);
-    return fallbackBusca(recuperadas);
+    return fallbackBusca(recuperadas, guiaTexto);
   }
 
-  if (!respostaLlm) return fallbackBusca(recuperadas);
+  if (!respostaLlm) return fallbackBusca(recuperadas, guiaTexto);
 
   const { texto, refsCitadas } = processarCitacoes(respostaLlm, refsIncluidas);
-  if (!texto) return fallbackBusca(recuperadas);
+  if (!texto) return fallbackBusca(recuperadas, guiaTexto);
 
   // Fontes finais: as citadas (ordem por ref); se nenhuma, todas as enviadas como contexto
   const refsFinais = refsCitadas.length ? [...refsCitadas].sort((a, b) => a - b) : refsIncluidas;
@@ -106,4 +121,3 @@ module.exports = {
   MSG_ENCONTRADOS,
   MSG_NAVEGACAO_ESTATICA,
 };
-

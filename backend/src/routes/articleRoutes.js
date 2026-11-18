@@ -4,26 +4,36 @@ const controller = require('../controllers/articleController');
 const commentController = require('../controllers/commentController');
 const { autenticar, autenticarOpcional, permitir } = require('../middleware/auth');
 const validar = require('../middleware/validate');
+const {
+  TITULO_MIN,
+  TITULO_MAX,
+  RESUMO_MAX,
+  CONTEUDO_MAX,
+  PALAVRAS_CHAVE_MAX,
+  IMAGEM_MAX,
+  TIPOS_ARTIGO,
+  TEMAS,
+} = require('../config/limites');
 
-const TIPOS_VALIDOS = ['noticia_escolar', 'noticia_global', 'artigo_cientifico', 'texto', 'poema', 'projeto'];
-const TEMAS_VALIDOS = ['cientifico', 'educacional', 'cultural', 'comunitario'];
+const TIPOS_VALIDOS = TIPOS_ARTIGO;
+const TEMAS_VALIDOS = TEMAS;
 
 // Reaproveitada na criação e na edição.
 const validacaoImagemCapa = body('imagemCapaUrl')
   .optional({ nullable: true, checkFalsy: true })
   .isURL().withMessage('URL da imagem de capa inválida')
-  .isLength({ max: 500 }).withMessage('URL da imagem de capa muito longa (máximo 500 caracteres)');
+  .isLength({ max: IMAGEM_MAX }).withMessage(`URL da imagem de capa muito longa (máximo ${IMAGEM_MAX} caracteres)`);
 
 const validacaoPublicacao = [
   body('titulo').trim().notEmpty().withMessage('Título é obrigatório')
-    .isLength({ min: 10, max: 150 }).withMessage('Título deve ter entre 10 e 150 caracteres'),
-  body('resumo').trim().notEmpty().withMessage('Resumo é obrigatório').isLength({ max: 300 }).withMessage('Resumo deve ter no máximo 300 caracteres'),
+    .isLength({ min: TITULO_MIN, max: TITULO_MAX }).withMessage(`Título deve ter entre ${TITULO_MIN} e ${TITULO_MAX} caracteres`),
+  body('resumo').trim().notEmpty().withMessage('Resumo é obrigatório').isLength({ max: RESUMO_MAX }).withMessage(`Resumo deve ter no máximo ${RESUMO_MAX} caracteres`),
   body('conteudo').trim().notEmpty().withMessage('Conteúdo é obrigatório')
-    .isLength({ max: 20000 }).withMessage('Conteúdo muito longo (máximo 20.000 caracteres)'),
+    .isLength({ max: CONTEUDO_MAX }).withMessage('Conteúdo muito longo (máximo 20.000 caracteres)'),
   body('tipo').isIn(TIPOS_VALIDOS).withMessage('Tipo de publicação inválido'),
   body('categoryId').optional({ nullable: true }).isUUID().withMessage('Categoria inválida'),
   body('tema').optional({ nullable: true }).isIn(TEMAS_VALIDOS).withMessage('Tema inválido'),
-  body('palavrasChave').optional().trim().isLength({ max: 300 }).withMessage('Palavras-chave devem ter no máximo 300 caracteres'),
+  body('palavrasChave').optional().trim().isLength({ max: PALAVRAS_CHAVE_MAX }).withMessage(`Palavras-chave devem ter no máximo ${PALAVRAS_CHAVE_MAX} caracteres`),
   validacaoImagemCapa,
 ];
 
@@ -39,14 +49,14 @@ router.put(
   autenticar,
   [
     body('titulo').optional().trim().notEmpty().withMessage('Título não pode ficar vazio')
-      .isLength({ min: 10, max: 150 }).withMessage('Título deve ter entre 10 e 150 caracteres'),
-    body('resumo').optional().trim().isLength({ max: 300 }).withMessage('Resumo deve ter no máximo 300 caracteres'),
+      .isLength({ min: TITULO_MIN, max: TITULO_MAX }).withMessage(`Título deve ter entre ${TITULO_MIN} e ${TITULO_MAX} caracteres`),
+    body('resumo').optional().trim().isLength({ max: RESUMO_MAX }).withMessage(`Resumo deve ter no máximo ${RESUMO_MAX} caracteres`),
     body('conteudo').optional().trim().notEmpty().withMessage('Conteúdo não pode ficar vazio')
-      .isLength({ max: 20000 }).withMessage('Conteúdo muito longo (máximo 20.000 caracteres)'),
+      .isLength({ max: CONTEUDO_MAX }).withMessage('Conteúdo muito longo (máximo 20.000 caracteres)'),
     body('tipo').optional().isIn(TIPOS_VALIDOS).withMessage('Tipo de publicação inválido'),
     body('categoryId').optional({ nullable: true }).isUUID().withMessage('Categoria inválida'),
     body('tema').optional({ nullable: true }).isIn(TEMAS_VALIDOS).withMessage('Tema inválido'),
-    body('palavrasChave').optional().trim().isLength({ max: 300 }).withMessage('Palavras-chave devem ter no máximo 300 caracteres'),
+    body('palavrasChave').optional().trim().isLength({ max: PALAVRAS_CHAVE_MAX }).withMessage(`Palavras-chave devem ter no máximo ${PALAVRAS_CHAVE_MAX} caracteres`),
     validacaoImagemCapa,
   ],
   validar,

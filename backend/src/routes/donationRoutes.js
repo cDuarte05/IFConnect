@@ -3,13 +3,14 @@ const { body } = require('express-validator');
 const controller = require('../controllers/donationController');
 const { autenticar } = require('../middleware/auth');
 const validar = require('../middleware/validate');
+const { MENSAGEM_APOIO_MAX } = require('../config/limites');
 
 router.post(
   '/:campaignId',
   autenticar,
   [
     body('valor').isFloat({ gt: 0 }).withMessage('Valor de apoio deve ser maior que zero'),
-    body('mensagemApoio').optional().trim().isLength({ max: 280 }).withMessage('Mensagem deve ter no máximo 280 caracteres')
+    body('mensagemApoio').optional().trim().isLength({ max: MENSAGEM_APOIO_MAX }).withMessage(`Mensagem deve ter no máximo ${MENSAGEM_APOIO_MAX} caracteres`)
     //Parte desnecessária por enquanto, pois não há nenhum destes campos.
     // body('titulo').trim().notEmpty().withMessage('Título é obrigatório')
     //   .isLength({ min: 10, max: 150 }).withMessage('Título deve ter entre 10 e 150 caracteres'),
