@@ -15,9 +15,10 @@ export default function AssistenteIA() {
   const [mensagens, setMensagens] = useState([BOAS_VINDAS]);
   const [enviando, setEnviando] = useState(false);
 
-  const fimRef = useRef(null);
-  const inputRef = useRef(null);
+  const painelRef = useRef(null);
   const botaoToggleRef = useRef(null);
+  const inputRef = useRef(null);
+  const fimRef = useRef(null);
   const reqIdRef = useRef(0);
 
   // Verifica status do assistente uma única vez ao montar
@@ -36,11 +37,49 @@ export default function AssistenteIA() {
     };
   }, []);
 
-  // Move foco para o campo ao abrir o painel
+  // Move o foco para o campo de texto ao abrir o painel
   useEffect(() => {
     if (aberto) {
-      inputRef.current?.focus();
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
     }
+  }, [aberto]);
+
+  // Listener para fechar o painel ao clicar fora ou pressionar a tecla Escape
+  useEffect(() => {
+    if (!aberto) return;
+
+    function handleClickFora(event) {
+      if (
+        painelRef.current?.contains(event.target) ||
+        botaoToggleRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setAberto(false);
+    }
+
+    function handleKeyDownGlobal(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        setAberto(false);
+        requestAnimationFrame(() => {
+          botaoToggleRef.current?.focus();
+        });
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickFora);
+    document.addEventListener('touchstart', handleClickFora);
+    document.addEventListener('keydown', handleKeyDownGlobal);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickFora);
+      document.removeEventListener('touchstart', handleClickFora);
+      document.removeEventListener('keydown', handleKeyDownGlobal);
+    };
   }, [aberto]);
 
   // Rola o histórico respeitando prefers-reduced-motion
@@ -55,6 +94,13 @@ export default function AssistenteIA() {
 
   if (habilitado !== true) {
     return null;
+  }
+
+  function fecharPainel() {
+    setAberto(false);
+    requestAnimationFrame(() => {
+      botaoToggleRef.current?.focus();
+    });
   }
 
   async function enviar(e) {
@@ -86,14 +132,6 @@ export default function AssistenteIA() {
     }
   }
 
-  function handleKeyDown(e) {
-    if (e.key === 'Escape' && aberto) {
-      e.stopPropagation();
-      setAberto(false);
-      requestAnimationFrame(() => botaoToggleRef.current?.focus());
-    }
-  }
-
   // Aceita apenas URLs internas iniciadas por "/" (e nunca "//" externo)
   const destino = (f) => {
     if (typeof f.url === 'string' && f.url.startsWith('/') && !f.url.startsWith('//')) {
@@ -102,115 +140,178 @@ export default function AssistenteIA() {
     return f.tipo === 'projeto' ? `/vitrine/${f.id}` : `/publicacoes/${f.id}`;
   };
 
+  const podeEnviar = !enviando && pergunta.trim().length >= 2;
+
   return (
-    <div
-      onKeyDown={handleKeyDown}
-      style={{
-        position: 'fixed',
-        right: '1rem',
-        bottom: '1rem',
-        zIndex: 20,
-        width: aberto ? 'min(340px, calc(100vw - 2rem))' : 'auto',
-        maxWidth: 'calc(100vw - 2rem)',
-      }}
-    >
+    <div className="assistente-widget-container">
       {aberto && (
         <section
-          className="cartao"
-          aria-label="Assistente do IFConnect"
-          style={{
-            width: '100%',
-            marginBottom: '0.75rem',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
+          ref={painelRef}
+          id="assistente-painel"
+          className="assistente-painel"
+          role="dialog"
+          aria-label="Assistente IFConnect"
+          aria-modal="false"
         >
-          <header style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--cor-borda)' }}>
-            <strong style={{ fontFamily: 'var(--fonte-display)' }}>Assistente IFConnect</strong>
+          <header className="assistente-cabecalho">
+            <h2 className="assistente-titulo">Assistente IFConnect</h2>
+            <button
+              type="button"
+              className="assistente-botao-fechar"
+              onClick={fecharPainel}
+              aria-label="Fechar assistente IFConnect"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </header>
-          <div
-            role="log"
-            aria-live="polite"
-            style={{ padding: '0.75rem 1rem', maxHeight: 320, overflowY: 'auto' }}
-          >
+
+          <div className="assistente-mensagens" role="log" aria-live="polite">
             {mensagens.map((m, i) => (
               <div
                 key={i}
-                style={{
-                  marginBottom: '0.75rem',
-                  textAlign: m.papel === 'usuario' ? 'right' : 'left',
-                }}
+                className={`assistente-bolha-grupo ${m.papel === 'usuario' ? 'usuario' : 'assistente'}`}
               >
-                <span className="rotulo-mono">{m.papel === 'usuario' ? 'Você' : 'Assistente'}</span>
-                <p style={{ margin: '0.2rem 0', whiteSpace: 'pre-wrap' }}>{m.texto}</p>
-                {m.fontes.length > 0 && (
-                  <ul
-                    style={{
-                      margin: '0.3rem 0 0',
-                      paddingLeft: '1.1rem',
-                      textAlign: 'left',
-                      fontSize: '0.9rem',
-                    }}
-                  >
-                    {m.fontes.map((f, idx) => (
-                      <li key={`${f.tipo}-${f.id}-${idx}`}>
-                        <Link to={destino(f)} onClick={() => setAberto(false)}>
-                          [{f.ref ?? idx + 1}] {f.titulo}
-                        </Link>
-                        <span className="rotulo-mono">
-                          {' '}
-                          · {f.tipo === 'projeto' ? 'projeto' : 'publicação'}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <span className="assistente-bolha-remetente">
+                  {m.papel === 'usuario' ? 'Você' : 'Assistente'}
+                </span>
+                <div
+                  className={`assistente-bolha ${m.papel === 'usuario' ? 'usuario' : 'assistente'}`}
+                >
+                  <p>{m.texto}</p>
+                  {m.fontes && m.fontes.length > 0 && (
+                    <ul className="assistente-fontes">
+                      {m.fontes.map((f, idx) => (
+                        <li key={`${f.tipo}-${f.id}-${idx}`}>
+                          <Link to={destino(f)} onClick={fecharPainel}>
+                            [{f.ref ?? idx + 1}] {f.titulo}
+                          </Link>
+                          <span className="rotulo-mono">
+                            {' '}
+                            · {f.tipo === 'projeto' ? 'projeto' : 'publicação'}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             ))}
             {enviando && (
-              <p className="rotulo-mono" role="status">
-                Pensando...
-              </p>
+              <div className="assistente-digitando" role="status">
+                <span className="ponto-pulsante" aria-hidden="true" />
+                <span>Pensando...</span>
+              </div>
             )}
             <div ref={fimRef} />
           </div>
-          <form
-            onSubmit={enviar}
-            style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--cor-borda)' }}
-          >
-            <label htmlFor="perguntaAssistente" className="rotulo-mono" style={{ marginTop: 0 }}>
-              Sua pergunta
-            </label>
+
+          <form onSubmit={enviar} className="assistente-form">
             <input
               ref={inputRef}
               id="perguntaAssistente"
+              className="assistente-input"
+              aria-label="Sua pergunta para o assistente"
               maxLength={500}
-              placeholder="Ex.: Há projetos de robótica?"
+              placeholder="Pergunte sobre publicações e projetos..."
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
+              disabled={enviando}
             />
             <button
               type="submit"
-              className="botao-primario"
-              style={{ marginTop: '0.5rem' }}
-              disabled={enviando || pergunta.trim().length < 2}
+              className="assistente-botao-enviar"
+              disabled={!podeEnviar}
+              aria-label={enviando ? 'Enviando pergunta...' : 'Enviar pergunta'}
             >
-              Enviar
+              {enviando ? (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="assistente-spinner"
+                  aria-hidden="true"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+              ) : (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" fill="currentColor" />
+                </svg>
+              )}
             </button>
           </form>
         </section>
       )}
-      <div style={{ textAlign: 'right' }}>
-        <button
-          ref={botaoToggleRef}
-          className="botao-primario"
-          onClick={() => setAberto((a) => !a)}
-          aria-expanded={aberto}
-          aria-label={aberto ? 'Fechar assistente' : 'Abrir assistente'}
-        >
-          {aberto ? 'Fechar' : 'Assistente'}
-        </button>
-      </div>
+
+      <button
+        ref={botaoToggleRef}
+        type="button"
+        className="assistente-botao-toggle"
+        onClick={() => setAberto((a) => !a)}
+        aria-expanded={aberto}
+        aria-controls="assistente-painel"
+        aria-label={aberto ? 'Fechar assistente IFConnect' : 'Abrir assistente IFConnect'}
+      >
+        {aberto ? (
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        ) : (
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        )}
+      </button>
     </div>
   );
 }

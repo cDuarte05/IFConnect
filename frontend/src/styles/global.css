@@ -238,6 +238,297 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 1rem 0 0.35
   background: var(--cor-tinta-suave);
 }
 
+/* ==========================================================================
+   Assistente de IA — Widget Flutuante e Painel de Chat
+   ========================================================================== */
+
+.assistente-widget-container {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.assistente-widget-container > * {
+  pointer-events: auto;
+}
+
+/* Botão Flutuante */
+.assistente-botao-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+  background-color: var(--cor-ambar);
+  color: var(--cor-tinta);
+  border: 2px solid var(--cor-tinta);
+  box-shadow: var(--sombra);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.assistente-botao-toggle:hover {
+  background-color: var(--cor-ambar-escuro);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(20, 33, 61, 0.16);
+}
+
+.assistente-botao-toggle:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.assistente-botao-toggle:focus-visible {
+  outline: 3px solid var(--cor-teal);
+  outline-offset: 2px;
+}
+
+/* Painel do Chat */
+.assistente-painel {
+  width: 360px;
+  max-width: calc(100vw - 2rem);
+  max-height: 70vh;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  animation: assistenteEntrada 0.2s ease-out;
+}
+
+@keyframes assistenteEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.assistente-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: var(--cor-papel-alt);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.assistente-titulo {
+  font-family: var(--fonte-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cor-tinta);
+  margin: 0;
+}
+
+.assistente-botao-fechar {
+  background: transparent;
+  border: none;
+  color: var(--cor-tinta-suave);
+  padding: 0.35rem;
+  border-radius: var(--raio);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.assistente-botao-fechar:hover {
+  color: var(--cor-tinta);
+  background-color: rgba(20, 33, 61, 0.08);
+}
+
+.assistente-botao-fechar:focus-visible {
+  outline: 3px solid var(--cor-teal);
+  outline-offset: 2px;
+}
+
+/* Lista de Mensagens */
+.assistente-mensagens {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background-color: var(--cor-papel);
+}
+
+.assistente-bolha-grupo {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.assistente-bolha-grupo.usuario {
+  align-items: flex-end;
+}
+
+.assistente-bolha-grupo.assistente {
+  align-items: flex-start;
+}
+
+.assistente-bolha-remetente {
+  font-family: var(--fonte-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  color: var(--cor-tinta-suave);
+}
+
+.assistente-bolha {
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--raio);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  box-shadow: 0 1px 2px rgba(20, 33, 61, 0.04);
+}
+
+.assistente-bolha.usuario {
+  background-color: var(--cor-teal);
+  color: #ffffff;
+  border: 1px solid transparent;
+  max-width: 86%;
+  text-align: left;
+}
+
+.assistente-bolha.assistente {
+  background-color: var(--cor-papel-alt);
+  color: var(--cor-tinta);
+  border: 1px solid var(--cor-borda);
+  max-width: 90%;
+  text-align: left;
+}
+
+.assistente-bolha p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.assistente-fontes {
+  margin: 0.5rem 0 0;
+  padding-left: 1.15rem;
+  font-size: 0.84rem;
+  color: var(--cor-tinta);
+}
+
+.assistente-fontes li {
+  margin-top: 0.25rem;
+}
+
+.assistente-fontes a {
+  color: var(--cor-teal);
+  font-weight: 600;
+}
+
+.assistente-fontes a:hover {
+  text-decoration: underline;
+}
+
+.assistente-digitando {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--fonte-mono);
+  font-size: 0.75rem;
+  color: var(--cor-tinta-suave);
+  padding: 0.45rem 0.75rem;
+  background-color: var(--cor-papel-alt);
+  border: 1px dashed var(--cor-borda);
+  border-radius: var(--raio);
+  align-self: flex-start;
+}
+
+/* Rodapé e Formulário */
+.assistente-form {
+  padding: 0.75rem 0.9rem;
+  background-color: #ffffff;
+  border-top: 1px solid var(--cor-borda);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.assistente-input {
+  flex: 1;
+  font-family: var(--fonte-corpo);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background-color: #ffffff;
+  color: var(--cor-tinta);
+}
+
+.assistente-input:focus-visible {
+  outline: 3px solid var(--cor-teal);
+  outline-offset: 1px;
+}
+
+.assistente-botao-enviar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  background-color: var(--cor-ambar);
+  color: var(--cor-tinta);
+  border: 1.5px solid var(--cor-tinta);
+  border-radius: var(--raio);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.12s ease;
+}
+
+.assistente-botao-enviar:hover:not(:disabled) {
+  background-color: var(--cor-ambar-escuro);
+}
+
+.assistente-botao-enviar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.assistente-spinner {
+  animation: assistenteGirar 0.8s linear infinite;
+}
+
+@keyframes assistenteGirar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+  .assistente-widget-container {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+  .assistente-painel {
+    width: calc(100vw - 1.5rem);
+    max-height: 75vh;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
