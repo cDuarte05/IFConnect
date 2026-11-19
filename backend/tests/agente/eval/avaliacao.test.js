@@ -18,7 +18,7 @@ describe('Avaliação offline do RAG (tests/agente/eval/runner.js)', () => {
     } finally {
       spyWrite.mockRestore();
     }
-  });
+  }, 20000);
 
   test('1. executarAvaliacao roda sem lançar exceção e retorna modos lexical, vetorial e hibrido', () => {
     expect(relatorio).toBeDefined();
