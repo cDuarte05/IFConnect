@@ -13,6 +13,7 @@ const donationRoutes = require('./routes/donationRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const agenteRoutes = require('./routes/agenteRoutes');
+const ajudaRoutes = require('./routes/ajudaRoutes');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/campanhas', campaignRoutes);
 app.use('/api/doacoes', donationRoutes);
 app.use('/api/comentarios', commentRoutes);
 app.use('/api/agente', agenteRoutes);
+app.use('/api/ajuda', ajudaRoutes);
 app.use(errorHandler);
 
 module.exports = app;
