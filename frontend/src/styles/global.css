@@ -620,3 +620,80 @@ label { display: block; font-weight: 600; font-size: 0.9rem; margin: 1rem 0 0.35
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* Central de ajuda (/ajuda) e Sobre (/sobre) */
+.ajuda-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ajuda-item {
+  padding: 0;
+}
+
+.ajuda-summary {
+  cursor: pointer;
+  padding: 0.95rem 1.15rem;
+  font-weight: 600;
+  color: var(--cor-tinta);
+  list-style-position: inside;
+}
+
+.ajuda-summary:focus-visible {
+  outline: 3px solid var(--cor-teal);
+  outline-offset: -3px;
+}
+
+.ajuda-item[open] > .ajuda-summary {
+  border-bottom: 1px solid var(--cor-borda);
+  background: var(--cor-papel-alt);
+}
+
+.ajuda-conteudo {
+  padding: 1rem 1.15rem 1.15rem;
+}
+
+.ajuda-conteudo h3 {
+  font-size: 0.98rem;
+  margin-top: 0.5rem;
+}
+
+.ajuda-passos,
+.ajuda-observacoes {
+  margin: 0.35rem 0 0.75rem;
+  padding-left: 1.35rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ajuda-aviso {
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid var(--cor-ambar);
+  color: var(--cor-tinta-suave);
+  margin: 0;
+}
+
+.ajuda-rodape-assistente {
+  padding: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--cor-papel-alt);
+}
+
+.sobre-lista-dados {
+  margin: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.sobre-lista-dados dt {
+  margin-bottom: 0.15rem;
+}
+
+.sobre-lista-dados dd {
+  margin: 0;
+}

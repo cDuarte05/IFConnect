@@ -13,6 +13,8 @@ import Profile from './pages/Profile';
 import Moderation from './pages/Moderation';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Help from './pages/Help';
+import About from './pages/About';
 import AssistenteIA from './components/AssistenteIA';
 
 export default function App() {
@@ -33,6 +35,8 @@ export default function App() {
           <Route path="/moderacao" element={<Moderation />} />
           <Route path="/entrar" element={<Login />} />
           <Route path="/registrar" element={<Register />} />
+          <Route path="/ajuda" element={<Help />} />
+          <Route path="/sobre" element={<About />} />
         </Routes>
       </main>
       <Footer />

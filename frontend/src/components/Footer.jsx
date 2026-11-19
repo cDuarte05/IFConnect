@@ -1,7 +1,9 @@
+import { Link } from 'react-router-dom';
+
 export default function Footer() {
   return (
     <footer style={{ borderTop: '1px solid var(--cor-borda)', marginTop: '4rem', padding: '2.5rem 0', color: 'var(--cor-tinta-suave)' }}>
-      <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem' }}>
+      <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
         <div>
           <strong style={{ fontFamily: 'var(--fonte-display)', color: 'var(--cor-tinta)' }}>IFConnect</strong>
           <p style={{ maxWidth: 360, fontSize: '0.9rem' }}>
@@ -10,7 +12,13 @@ export default function Footer() {
             e a comunidade publicarem conteúdos e divulgarem projetos.
           </p>
         </div>
-        <p className="rotulo-mono">Projeto acadêmico — código aberto</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', alignItems: 'flex-start' }}>
+          <nav aria-label="Links institucionais" style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.92rem' }}>
+            <Link to="/sobre">Sobre</Link>
+            <Link to="/ajuda">Ajuda</Link>
+          </nav>
+          <p className="rotulo-mono" style={{ margin: 0 }}>Projeto acadêmico — código aberto</p>
+        </div>
       </div>
     </footer>
   );

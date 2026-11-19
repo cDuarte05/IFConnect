@@ -18,6 +18,7 @@ export default function Navbar() {
         <nav style={{ display: 'flex', gap: '1.4rem', alignItems: 'center', fontSize: '0.95rem', flexWrap: 'wrap' }}>
           <NavLink to="/" style={({ isActive }) => ({ color: 'var(--cor-tinta)', fontWeight: isActive ? 700 : 500 })}>Publicações</NavLink>
           <NavLink to="/vitrine" style={({ isActive }) => ({ color: 'var(--cor-tinta)', fontWeight: isActive ? 700 : 500 })}>Vitrine científica</NavLink>
+          <NavLink to="/ajuda" style={({ isActive }) => ({ color: 'var(--cor-tinta)', fontWeight: isActive ? 700 : 500 })}>Ajuda</NavLink>
           {usuario && <NavLink to="/publicar" style={({ isActive }) => ({ color: 'var(--cor-tinta)', fontWeight: isActive ? 700 : 500 })}>Publicar</NavLink>}
           {usuario?.tipo === 'professor_moderador' && (
             <NavLink to="/moderacao" style={({ isActive }) => ({ color: 'var(--cor-tinta)', fontWeight: isActive ? 700 : 500 })}>Moderação</NavLink>

@@ -85,6 +85,20 @@ export default function AssistenteIA() {
     }
   }, [aberto]);
 
+  // Permite abrir o painel a partir de outras páginas (ex.: Central de ajuda)
+  useEffect(() => {
+    function handleAbrirAssistente() {
+      setAberto(true);
+      requestAnimationFrame(() => {
+        inputRef.current?.focus();
+      });
+    }
+    window.addEventListener('abrir-assistente', handleAbrirAssistente);
+    return () => {
+      window.removeEventListener('abrir-assistente', handleAbrirAssistente);
+    };
+  }, []);
+
   // Listener para fechar o painel ao clicar fora ou pressionar a tecla Escape
   useEffect(() => {
     if (!aberto) return;
@@ -375,7 +389,10 @@ export default function AssistenteIA() {
               </p>
             )}
             <p className="assistente-aviso-privacidade">
-              Não envie dados pessoais.
+              Não envie dados pessoais.{' '}
+              <Link to="/ajuda" onClick={fecharPainel}>
+                Central de ajuda
+              </Link>
             </p>
           </div>
         </section>
