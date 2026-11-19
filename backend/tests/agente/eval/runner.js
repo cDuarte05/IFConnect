@@ -186,7 +186,7 @@ function calcularMetricasModo(resultadosPorPergunta, perguntasRelevantes, chaves
  * Executa a avaliação completa de recuperação do RAG sobre o dataset fixo.
  * @returns {Promise<object>} Relatório estruturado sem chaves de API nem textos de chunks.
  */
-async function executarAvaliacao({ provider, k = 4, log = console.log } = {}) {
+async function executarAvaliacao({ provider, k = 4, log = console.log, escreverRelatorio = false } = {}) {
   const dataset = JSON.parse(fs.readFileSync(CAMINHO_DATASET, 'utf8'));
   const prov = provider || resolverProvider();
   const ehMock = prov.info.provider === 'mock';
@@ -623,7 +623,9 @@ async function executarAvaliacao({ provider, k = 4, log = console.log } = {}) {
     detalhePorPergunta,
   };
 
-  fs.writeFileSync(CAMINHO_RELATORIO, JSON.stringify(relatorio, null, 2), 'utf8');
+  if (escreverRelatorio) {
+    fs.writeFileSync(CAMINHO_RELATORIO, JSON.stringify(relatorio, null, 2), 'utf8');
+  }
   imprimirRelatorio(relatorio, log);
 
   return relatorio;
@@ -692,6 +694,7 @@ async function executarCli() {
       provider: prov,
       k: opcoes.k,
       log: opcoes.json ? () => {} : console.log,
+      escreverRelatorio: true,
     });
 
     if (opcoes.json) {

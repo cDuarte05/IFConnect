@@ -1,3 +1,4 @@
+const fs = require('fs');
 require('../../setup');
 const { criarProvider } = require('../_fixtures');
 const { executarAvaliacao } = require('./runner');
@@ -6,10 +7,17 @@ const dataset = require('./dataset.json');
 
 describe('Avaliação offline do RAG (tests/agente/eval/runner.js)', () => {
   let relatorio;
+  let chamadasWrite;
 
   beforeAll(async () => {
-    const provider = criarProvider();
-    relatorio = await executarAvaliacao({ provider, k: 4, log: () => { } });
+    const spyWrite = jest.spyOn(fs, 'writeFileSync');
+    try {
+      const provider = criarProvider();
+      relatorio = await executarAvaliacao({ provider, k: 4, log: () => { } });
+      chamadasWrite = spyWrite.mock.calls.length;
+    } finally {
+      spyWrite.mockRestore();
+    }
   });
 
   test('1. executarAvaliacao roda sem lançar exceção e retorna modos lexical, vetorial e hibrido', () => {
@@ -54,6 +62,10 @@ describe('Avaliação offline do RAG (tests/agente/eval/runner.js)', () => {
     expect(ehPerguntaDeNavegacao(porId.get('Q25'))).toBe(true);
     expect(ehPerguntaDeNavegacao(porId.get('Q20'))).toBe(false);
     expect(ehPerguntaDeNavegacao(porId.get('Q21'))).toBe(false);
+  });
+
+  test('6. executarAvaliacao sem escreverRelatorio:true não escreve arquivos no repositório', () => {
+    expect(chamadasWrite).toBe(0);
   });
 });
 
