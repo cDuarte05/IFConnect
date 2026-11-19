@@ -1,7 +1,6 @@
 # Frontend — IFConnect
 
-Interface em React (Vite), com identidade visual de "caderno de campo":
-papel, selos de categoria e um termômetro de arrecadação para as campanhas.
+Interface em React (Vite), com identidade visual de "caderno de campo": papel, selos de categoria, comentários em tempo real (SSE), Central de Ajuda e Assistente de IA.
 
 ## Rodando localmente
 
@@ -11,20 +10,16 @@ npm install
 npm run dev   # http://localhost:5173 (a API precisa estar rodando em :4000)
 ```
 
+> **Windows PowerShell:** se `npm` estiver bloqueado por política de execução, use `npm.cmd` ou Git Bash.
+
 ## Estrutura
 
-- `src/pages` — telas: Home (feed), detalhe de publicação, envio e edição de
-  publicação, vitrine de projetos, envio e edição de projeto, detalhe de
-  projeto, perfil (com "minhas publicações"/"minhas campanhas"), moderação
-  (restrita a professor_moderador), login e cadastro.
-- `src/components` — Navbar, Footer, cartões de publicação/campanha e a barra
-  de arrecadação.
-- `src/styles/tokens.css` — paleta de cores e tipografia do projeto.
-- `src/context/AuthContext.jsx` — sessão do usuário (token JWT em localStorage).
+- `src/pages/` — `Home`, `ArticleDetail`, `SubmitArticle`, `EditArticle`, `Crowdfunding` (vitrine), `CampaignDetail`, `SubmitCampaign`, `EditCampaign`, `Profile`, `Moderation` (restrita a `professor_moderador`), `Login`, `Register`, `Help` (`/ajuda`) e `About` (`/sobre`).
+- `src/components/` — `Navbar`, `Footer`, `AssistenteIA`, `CommentsSection`, `ArticleCard`, `CampaignCard` e `FundingBar`.
+- `src/config/projeto.js` e `src/content/faq.js` — metadados do projeto e perguntas frequentes estáticas.
+- `src/context/AuthContext.jsx` — sessão do usuário (token JWT em `localStorage`).
+- `src/api/client.js` — cliente Axios apontando para `/api` (proxy local em `vite.config.js`).
 
-## Possível publicação em nuvem (AWS)
+## Build e hospedagem (Render)
 
-Assim como no backend, a hospedagem em nuvem é tratada na documentação do
-projeto como uma possibilidade futura, não como requisito da fase atual. Se
-adotada, o build estático (`npm run build`, pasta `dist/`) poderia ser
-publicado em um bucket **Amazon S3** com **Amazon CloudFront** na frente.
+O build estático é gerado com `npm run build` (pasta `dist/`) e pode ser pré-visualizado localmente com `npm run preview`. A demonstração publicada está hospedada no Render.
