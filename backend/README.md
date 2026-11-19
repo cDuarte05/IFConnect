@@ -66,7 +66,7 @@ recusados, encerrados ou dados pessoais de usuários.
 | `AGENTE_IA_ENABLED` | `true` | Liga/desliga o assistente (`false` → 503 e oculto no frontend) |
 | `AGENTE_IA_PROVIDER` | `groq` | Provedor de LLM (`anthropic`, `gemini`, `groq`) |
 | `AGENTE_IA_API_KEY` | *(vazio)* | Chave do LLM (vazia → degrada para modo `busca`) |
-| `AGENTE_IA_MODEL` | `llama-3.3-70b-versatile` | Modelo de chat do LLM |
+| `AGENTE_IA_MODEL` | `openai/gpt-oss-120b` | Modelo de chat do LLM |
 | `AGENTE_IA_TIMEOUT_MS` | `8000` | Timeout das chamadas ao LLM (ms) |
 | `AGENTE_IA_RATE_LIMIT` | `10` | Limite de perguntas por minuto por IP |
 | `TRUST_PROXY` | *(comentado)* | Número de proxies reversos à frente da API (ex.: `1`) para rate limit por IP |

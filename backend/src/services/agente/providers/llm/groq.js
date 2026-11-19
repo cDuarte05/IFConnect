@@ -2,7 +2,7 @@ const { fetchJsonComTimeout } = require('../http');
 const { ProvedorIndisponivelError } = require('../errors');
 
 async function generate({ system, user, config }) {
-  const model = config?.model || 'llama-3.3-70b-versatile';
+  const model = config?.model || 'openai/gpt-oss-120b';
   const apiKey = config?.apiKey;
   const timeoutMs = config?.timeoutMs || 8000;
 

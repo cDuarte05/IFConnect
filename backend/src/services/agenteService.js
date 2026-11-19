@@ -169,7 +169,7 @@ async function chamarGroq({ pergunta, contexto }) {
         authorization: `Bearer ${process.env.AGENTE_IA_API_KEY}`,
       },
       body: JSON.stringify({
-        model: process.env.AGENTE_IA_MODEL || 'llama-3.3-70b-versatile',
+        model: process.env.AGENTE_IA_MODEL || 'openai/gpt-oss-120b',
         max_tokens: 500,
         temperature: 0.3,
         messages: [

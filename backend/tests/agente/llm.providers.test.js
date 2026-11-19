@@ -150,7 +150,7 @@ describe('Provedores de LLM (providers/llm/*)', () => {
       const resposta = await provider.generate({
         system: 'SysGroq',
         user: 'UserGroq',
-        config: { apiKey: 'groq-key', model: 'llama-3.3-70b-versatile' },
+        config: { apiKey: 'groq-key', model: 'openai/gpt-oss-120b' },
       });
 
       expect(resposta).toBe('Resposta Groq');
@@ -165,7 +165,7 @@ describe('Provedores de LLM (providers/llm/*)', () => {
       });
 
       const body = JSON.parse(options.body);
-      expect(body.model).toBe('llama-3.3-70b-versatile');
+      expect(body.model).toBe('openai/gpt-oss-120b');
       expect(body.max_tokens).toBe(500);
       expect(body.temperature).toBe(0.3);
       expect(body.messages).toEqual([
@@ -203,6 +203,18 @@ describe('Provedores de LLM (providers/llm/*)', () => {
       await expect(
         provider.generate({ system: 's', user: 'u', config: { apiKey: 'k', timeoutMs: 50 } })
       ).rejects.toThrow(ProvedorIndisponivelError);
+    });
+
+    test('usa modelo padrão atualizado quando config.model não é informado', async () => {
+      global.fetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+      });
+
+      await provider.generate({ system: 's', user: 'u', config: { apiKey: 'groq-key' } });
+      const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+      expect(body.model).toBe('openai/gpt-oss-120b');
+      expect(body.model).not.toBe('llama-3.3-70b-versatile');
     });
   });
 });

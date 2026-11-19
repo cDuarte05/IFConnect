@@ -53,7 +53,7 @@ describe('Regressão de agenteService com provedor Groq e busca', () => {
     process.env.AGENTE_IA_ENABLED = 'true';
     process.env.AGENTE_IA_PROVIDER = 'groq';
     process.env.AGENTE_IA_API_KEY = 'gsk_teste123';
-    process.env.AGENTE_IA_MODEL = 'llama-3.3-70b-versatile';
+    process.env.AGENTE_IA_MODEL = 'openai/gpt-oss-120b';
 
     global.fetch.mockResolvedValueOnce({
       ok: true,

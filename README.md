@@ -210,7 +210,7 @@ Variáveis declaradas em [`backend/.env.example`](backend/.env.example):
 | `AGENTE_IA_ENABLED` | Não | `true` | Habilita ou desabilita o assistente (`503` quando `false`) |
 | `AGENTE_IA_PROVIDER` | Não | `groq` | Provedor LLM (`groq`, `gemini`, `anthropic`) |
 | `AGENTE_IA_API_KEY` | Não (segredo) | — | Chave da API do LLM (vazia ativa fallback `busca`) |
-| `AGENTE_IA_MODEL` | Não | `llama-3.3-70b-versatile` | Modelo de chat utilizado |
+| `AGENTE_IA_MODEL` | Não | `openai/gpt-oss-120b` | Modelo de chat utilizado |
 | `AGENTE_IA_TIMEOUT_MS` | Não | `8000` | Timeout de chamada ao LLM em milissegundos |
 | `AGENTE_IA_RATE_LIMIT` | Não | `10` | Limite de perguntas por minuto por IP |
 | `AGENTE_RAG_ENABLED` | Não | `false` | Ativa o pipeline RAG híbrido |
