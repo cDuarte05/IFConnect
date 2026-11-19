@@ -8,11 +8,18 @@ const INCLUDE_AUTOR = [
 
 const LIMITE_EDICAO_MS = 15 * 60 * 1000; // 15 minutos
 
+function artigoVisivel(artigo, usuario) {
+  if (!artigo) return false;
+  if (artigo.status === 'publicado') return true;
+  if (!usuario) return false;
+  return usuario.id === artigo.autorId || usuario.tipo === 'professor_moderador';
+}
+
 // Conecta o cliente ao fluxo SSE em tempo real para um artigo
 exports.streamArtigo = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const artigo = await Article.findByPk(id);
-  if (!artigo) {
+  if (!artigoVisivel(artigo, req.usuario)) {
     return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
   }
 
@@ -34,7 +41,7 @@ exports.streamCampanha = asyncHandler(async (req, res) => {
 exports.listarPorArtigo = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const artigo = await Article.findByPk(id);
-  if (!artigo) {
+  if (!artigoVisivel(artigo, req.usuario)) {
     return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
   }
 
@@ -53,7 +60,7 @@ exports.criarPorArtigo = asyncHandler(async (req, res) => {
   const { conteudo } = req.body;
 
   const artigo = await Article.findByPk(id);
-  if (!artigo) {
+  if (!artigoVisivel(artigo, req.usuario)) {
     return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
   }
 

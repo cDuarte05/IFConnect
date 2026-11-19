@@ -30,7 +30,7 @@ beforeAll(async () => {
   const u3 = await registrar(`outro.usuario.${Date.now()}@teste.com`);
   estudante3Token = u3.token;
 
-  // Criar publicação pelo estudante 1
+  // Criar publicação pelo estudante 1 e publicar via professor_moderador para permitir leitura pública nos testes gerais
   const artRes = await request(app)
     .post('/api/artigos')
     .set('Authorization', `Bearer ${estudante1Token}`)
@@ -41,6 +41,12 @@ beforeAll(async () => {
       tipo: 'artigo_cientifico',
     });
   artigoId = artRes.body.id;
+
+  const { token: profSetupToken } = await criarProfessor({ email: `prof.setup.${Date.now()}@ifsp.edu.br` });
+  await request(app)
+    .patch(`/api/artigos/${artigoId}/moderar`)
+    .set('Authorization', `Bearer ${profSetupToken}`)
+    .send({ status: 'publicado' });
 
   // Criar projeto / campanha pelo estudante 1
   const campRes = await request(app)

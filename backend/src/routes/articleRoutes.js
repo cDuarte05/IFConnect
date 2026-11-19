@@ -66,8 +66,8 @@ router.put(
 router.delete('/:id', autenticar, controller.excluir);
 
 // Comentários da publicação
-router.get('/:id/comentarios', commentController.listarPorArtigo);
-router.get('/:id/comentarios/stream', commentController.streamArtigo);
+router.get('/:id/comentarios', autenticarOpcional, commentController.listarPorArtigo);
+router.get('/:id/comentarios/stream', autenticarOpcional, commentController.streamArtigo);
 router.post(
   '/:id/comentarios',
   autenticar,

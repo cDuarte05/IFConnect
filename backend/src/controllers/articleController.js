@@ -36,8 +36,20 @@ exports.listar = asyncHandler(async (req, res) => {
 exports.obterPorId = asyncHandler(async (req, res) => {
   const artigo = await Article.findByPk(req.params.id, { include: INCLUDE_AUTOR_CATEGORIA });
   if (!artigo) return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
-  artigo.visualizacoes += 1;
-  await artigo.save();
+
+  const visivelPublicamente = artigo.status === 'publicado';
+  const ehAutor = req.usuario && req.usuario.id === artigo.autorId;
+  const ehModerador = req.usuario && req.usuario.tipo === 'professor_moderador';
+
+  // Não revela a existência de publicações não publicadas para terceiros ou visitantes
+  if (!visivelPublicamente && !ehAutor && !ehModerador) {
+    return res.status(404).json({ erro: true, mensagem: 'Publicação não encontrada' });
+  }
+
+  if (visivelPublicamente) {
+    artigo.visualizacoes += 1;
+    await artigo.save();
+  }
   res.json(artigo);
 });
 
