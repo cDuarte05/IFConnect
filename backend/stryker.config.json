@@ -5,7 +5,8 @@
     "src/services/agente/retrieval/hybrid.js",
     "src/services/agente/generation/prompt.js",
     "src/services/agente/generation/citacoes.js",
-    "src/services/agente/generation/intencao.js"
+    "src/services/agente/generation/intencao.js",
+    "src/services/agente/generation/textoSimples.js"
   ],
   "jest": {
     "configFile": "jest.config.js",

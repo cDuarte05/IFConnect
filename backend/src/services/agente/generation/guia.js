@@ -70,7 +70,7 @@ function formatarSecao(secao) {
     'Passos:',
     ...secao.passos.map((p, idx) => `${idx + 1}. ${p}`),
     'Observações:',
-    ...secao.observacoes.map((o) => `- ${o}`),
+    ...secao.observacoes.map((o) => `• ${o}`),
   ];
   return linhas.join('\n');
 }
