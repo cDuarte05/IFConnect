@@ -14,7 +14,8 @@
     "agente:reindex": "node src/services/agente/ingest/reindex.js",
     "agente:eval": "cross-env NODE_ENV=test node tests/agente/eval/runner.js",
     "agente:mutacao": "stryker run",
-    "agente:smoke": "node scripts/agente-smoke.js"
+    "agente:smoke": "node scripts/agente-smoke.js",
+    "guia:verificar": "node scripts/verificar-guia.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
