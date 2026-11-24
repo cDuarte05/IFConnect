@@ -34,6 +34,10 @@ export default function AssistenteIA() {
   const [mensagens, setMensagens] = useState([BOAS_VINDAS]);
   const [enviando, setEnviando] = useState(false);
   const [textoProgresso, setTextoProgresso] = useState('Pensando...');
+  const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
+
+  const jaPerguntou = mensagens.some((m) => m.papel === 'usuario');
+  const mostrarChips = !jaPerguntou || sugestoesAbertas;
 
   const location = useLocation();
   const pagina = useMemo(() => detectarPagina(location.pathname), [location.pathname]);
@@ -56,8 +60,9 @@ export default function AssistenteIA() {
 
   const painelRef = useRef(null);
   const botaoToggleRef = useRef(null);
+  const botaoSugestoesRef = useRef(null);
   const inputRef = useRef(null);
-  const fimRef = useRef(null);
+  const historicoRef = useRef(null);
   const reqIdRef = useRef(0);
 
   // Verifica status do assistente uma única vez ao montar
@@ -76,11 +81,11 @@ export default function AssistenteIA() {
     };
   }, []);
 
-  // Move o foco para o campo de texto ao abrir o painel
+  // Move o foco para o campo de texto ao abrir o painel (sem rolar a página)
   useEffect(() => {
     if (aberto) {
       requestAnimationFrame(() => {
-        inputRef.current?.focus();
+        inputRef.current?.focus({ preventScroll: true });
       });
     }
   }, [aberto]);
@@ -90,7 +95,7 @@ export default function AssistenteIA() {
     function handleAbrirAssistente() {
       setAberto(true);
       requestAnimationFrame(() => {
-        inputRef.current?.focus();
+        inputRef.current?.focus({ preventScroll: true });
       });
     }
     window.addEventListener('abrir-assistente', handleAbrirAssistente);
@@ -119,7 +124,7 @@ export default function AssistenteIA() {
         event.stopPropagation();
         setAberto(false);
         requestAnimationFrame(() => {
-          botaoToggleRef.current?.focus();
+          botaoToggleRef.current?.focus({ preventScroll: true });
         });
       }
     }
@@ -135,14 +140,22 @@ export default function AssistenteIA() {
     };
   }, [aberto]);
 
-  // Rola o histórico respeitando prefers-reduced-motion
+  // Rola apenas o próprio elemento de histórico, nunca a página inteira
   useEffect(() => {
-    if (!aberto) return;
+    if (!aberto || !historicoRef.current) return;
     const reduzMovimento =
       typeof window !== 'undefined' &&
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    fimRef.current?.scrollIntoView({ behavior: reduzMovimento ? 'auto' : 'smooth' });
+    const el = historicoRef.current;
+    if (typeof el.scrollTo === 'function') {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: reduzMovimento ? 'auto' : 'smooth',
+      });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
   }, [mensagens, aberto]);
 
   if (habilitado !== true) {
@@ -152,8 +165,18 @@ export default function AssistenteIA() {
   function fecharPainel() {
     setAberto(false);
     requestAnimationFrame(() => {
-      botaoToggleRef.current?.focus();
+      botaoToggleRef.current?.focus({ preventScroll: true });
     });
+  }
+
+  function alternarSugestoes() {
+    const recolhendo = sugestoesAbertas;
+    setSugestoesAbertas(!recolhendo);
+    if (recolhendo) {
+      requestAnimationFrame(() => {
+        botaoSugestoesRef.current?.focus({ preventScroll: true });
+      });
+    }
   }
 
   async function enviarTexto(textoAEnviar) {
@@ -161,10 +184,14 @@ export default function AssistenteIA() {
     if (texto.length < 2 || enviando) return;
 
     const idAtual = ++reqIdRef.current;
+    setSugestoesAbertas(false);
     setMensagens((m) => [...m, { papel: 'usuario', texto, fontes: [] }]);
     setPergunta('');
     setEnviando(true);
     setTextoProgresso('Pensando...');
+    requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true });
+    });
 
     const timerProgresso = setTimeout(() => {
       setTextoProgresso('Ainda procurando... o servidor pode estar acordando.');
@@ -262,7 +289,7 @@ export default function AssistenteIA() {
             </button>
           </header>
 
-          <div className="assistente-mensagens" role="log" aria-live="polite">
+          <div ref={historicoRef} className="assistente-mensagens" role="log" aria-live="polite">
             {mensagens.map((m, i) => (
               <div
                 key={i}
@@ -309,26 +336,43 @@ export default function AssistenteIA() {
                 <span>{textoProgresso}</span>
               </div>
             )}
-            <div ref={fimRef} />
           </div>
 
-          <div
-            className="assistente-chips-container"
-            role="toolbar"
-            aria-label="Sugestões de perguntas rápidas"
-          >
-            {atalhos.map((chipTexto) => (
+          {jaPerguntou && (
+            <div className="assistente-sugestoes-barra">
               <button
-                key={chipTexto}
+                ref={botaoSugestoesRef}
                 type="button"
-                className="assistente-chip"
-                onClick={() => enviarTexto(chipTexto)}
-                disabled={enviando}
+                className="assistente-botao-sugestoes"
+                onClick={alternarSugestoes}
+                aria-expanded={sugestoesAbertas}
+                aria-controls="assistente-sugestoes"
               >
-                {chipTexto}
+                Sugestões
               </button>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {mostrarChips && (
+            <div
+              id="assistente-sugestoes"
+              className="assistente-chips-container"
+              role="group"
+              aria-label="Sugestões de perguntas rápidas"
+            >
+              {atalhos.map((chipTexto) => (
+                <button
+                  key={chipTexto}
+                  type="button"
+                  className="assistente-chip"
+                  onClick={() => enviarTexto(chipTexto)}
+                  disabled={enviando}
+                >
+                  {chipTexto}
+                </button>
+              ))}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="assistente-form">
             <input
@@ -340,7 +384,6 @@ export default function AssistenteIA() {
               placeholder="Pergunte sobre publicações e projetos..."
               value={pergunta}
               onChange={(e) => setPergunta(e.target.value)}
-              disabled={enviando}
             />
             <button
               type="submit"

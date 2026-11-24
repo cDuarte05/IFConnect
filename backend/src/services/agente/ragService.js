@@ -8,6 +8,7 @@ const {
   montarMensagemUsuario,
 } = require('./generation/prompt');
 const { processarCitacoes } = require('./generation/citacoes');
+const { limparTexto } = require('./generation/textoSimples');
 const { ehPerguntaDeNavegacao } = require('./generation/intencao');
 const { selecionarGuia } = require('./generation/guia');
 const { ehPerguntaSobrePagina, carregarContextoPagina } = require('./generation/pagina');
@@ -130,7 +131,8 @@ async function consultarRag(
 
   if (!respostaLlm) return fallbackBusca(recuperadas, guiaTexto);
 
-  const { texto, refsCitadas } = processarCitacoes(respostaLlm, refsIncluidas);
+  const { texto: textoCitado, refsCitadas } = processarCitacoes(respostaLlm, refsIncluidas);
+  const texto = limparTexto(textoCitado);
   if (!texto) return fallbackBusca(recuperadas, guiaTexto);
 
   // Fontes finais: as citadas (ordem por ref); se nenhuma, todas as enviadas como contexto

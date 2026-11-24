@@ -98,6 +98,7 @@ Todo comportamento acima deve continuar válido quando `AGENTE_RAG_ENABLED=false
 | RF-14 | Com `AGENTE_RAG_ENABLED=false`, o comportamento é o descrito na seção 3, sem diferenças observáveis no contrato. |
 | RF-15 | Frontend: exibir a resposta como **texto** (nunca HTML), fontes como links internos, estados de carregando e erro, e ocultar o assistente se o recurso estiver desabilitado. |
 | RF-18 | Reconciliação automática do índice na inicialização e periodicamente; falhas nunca derrubam o servidor nem as rotas; execuções não se sobrepõem. |
+| RF-20 | Respostas em texto simples: remover símbolos de Markdown, tags/entidades HTML, escapes soltos e barras iniciais de caminhos de rota, mantendo marcadores de citação (`[1]`, `[1, 2]`), acentuação, emojis e valores monetários preservados. |
 
 ## 7. Contrato da API
 
@@ -255,6 +256,7 @@ Variáveis novas deste RAG [PROPOSTA]: extensão da lista do documento, a regist
 | CA-14 | Dado `AGENTE_RAG_ENABLED=false`, então o contrato e o comportamento são os da seção 3 | RF-14 |
 | CA-15 | Dado uma doação que leva o projeto a `financiada`, então ele segue consultável e `arrecadado` reflete o valor atual | RN-05 |
 | CA-16 | Dado `embeddingModel` alterado, então `agente:reindex` reembeda tudo e consultas não comparam vetores de modelos diferentes | RN-09, RF-08 |
+| CA-20 | Dada uma resposta do LLM contendo Markdown, tags HTML, escapes ou caminhos de rota (ex.: `"**Olá** [1] visite /vitrine e (/entrar)"`), quando consultada via rota (`modo='rag'`) ou fluxo legado (`modo='ia'`), então a resposta devolvida chega em texto simples (`"Olá [1] visite vitrine e (entrar)"`), idempotente, e os marcadores de citação válidos permanecem preservados e refletidos em `fontes` | RF-20, RF-12 |
 
 ## 14. Pontos em aberto e decisões
 
@@ -292,5 +294,6 @@ Matriz completa por critério de aceite em [`cobertura-ca.md`](./cobertura-ca.md
 | RF-13, RF-14 | T12, T13, T16 | CA-06, CA-14 | `backend/tests/agente/llm.providers.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js`, `backend/tests/agente.test.js` |
 | RF-15 | T14 | — | Verificação manual de usabilidade/acessibilidade em `frontend/src/components/AssistenteIA.jsx` + contrato de API em `backend/tests/agente/rota.test.js` |
 | RF-18 | T18 | — | `backend/tests/agente/reconciliador.test.js` |
+| RF-20 | V3-C | CA-20 | `backend/tests/agente/textoSimples.test.js` |
 | SEG-01 a SEG-03 | T-sec, T10, T11, T16 | CA-09, CA-10 | `backend/tests/agente/injecao.test.js`, `backend/tests/agente/prompt.test.js`, `backend/tests/agente/retrieval.hybrid.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js` |
 | RN-05 | T10, T12, T16 | CA-15 | `backend/tests/agente/retrieval.hybrid.test.js`, `backend/tests/agente/ragService.test.js`, `backend/tests/agente/e2e.rag.test.js` |
